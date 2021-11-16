@@ -8,8 +8,7 @@
 #import "GameViewController.h"
 #import "Renderer.h"
 
-@implementation GameViewController
-{
+@implementation GameViewController {
     MTKView *_view;
 
     Renderer *_renderer;
@@ -23,8 +22,7 @@
 
     _view.device = MTLCreateSystemDefaultDevice();
 
-    if(!_view.device)
-    {
+    if (!_view.device) {
         NSLog(@"Metal is not supported on this device");
         self.view = [[NSView alloc] initWithFrame:self.view.frame];
         return;

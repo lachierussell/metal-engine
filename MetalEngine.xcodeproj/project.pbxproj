@@ -62,20 +62,44 @@
 		99EA9FB6273E87680037155D /* MetalEngine */ = {
 			isa = PBXGroup;
 			children = (
-				99EA9FB7273E87680037155D /* AppDelegate.h */,
-				99EA9FB8273E87680037155D /* AppDelegate.m */,
-				99EA9FBA273E87680037155D /* Renderer.h */,
-				99EA9FBB273E87680037155D /* Renderer.m */,
-				99EA9FBD273E87680037155D /* GameViewController.h */,
-				99EA9FBE273E87680037155D /* GameViewController.m */,
-				99EA9FC0273E87680037155D /* Shaders.metal */,
-				99EA9FC2273E87680037155D /* ShaderTypes.h */,
+				99EA9FD2273F61370037155D /* Data */,
+				99EA9FD1273F61240037155D /* Application */,
+				99EA9FD0273F61190037155D /* Renderer */,
 				99EA9FC3273E876B0037155D /* Assets.xcassets */,
 				99EA9FC5273E876B0037155D /* Main.storyboard */,
 				99EA9FC8273E876B0037155D /* main.m */,
 				99EA9FCA273E876B0037155D /* MetalEngine.entitlements */,
 			);
 			path = MetalEngine;
+			sourceTree = "<group>";
+		};
+		99EA9FD0273F61190037155D /* Renderer */ = {
+			isa = PBXGroup;
+			children = (
+				99EA9FBA273E87680037155D /* Renderer.h */,
+				99EA9FBB273E87680037155D /* Renderer.m */,
+				99EA9FC0273E87680037155D /* Shaders.metal */,
+				99EA9FC2273E87680037155D /* ShaderTypes.h */,
+			);
+			path = Renderer;
+			sourceTree = "<group>";
+		};
+		99EA9FD1273F61240037155D /* Application */ = {
+			isa = PBXGroup;
+			children = (
+				99EA9FB7273E87680037155D /* AppDelegate.h */,
+				99EA9FB8273E87680037155D /* AppDelegate.m */,
+				99EA9FBD273E87680037155D /* GameViewController.h */,
+				99EA9FBE273E87680037155D /* GameViewController.m */,
+			);
+			path = Application;
+			sourceTree = "<group>";
+		};
+		99EA9FD2273F61370037155D /* Data */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = Data;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
