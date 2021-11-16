@@ -181,29 +181,28 @@ static const size_t kAlignedUniformsSize = (sizeof(Uniforms) & ~0xFF) + 0x100;
     printf("vector_float3 size %lu\n", sizeof(vector_float3));
     printf("Verticies %lu\n", sizeof(verticies));
     printf("Indexes %lu\n", sizeof(indicies));
-    
+
     GKPerlinNoiseSource *perlinNoise = [[GKPerlinNoiseSource alloc] initWithFrequency:25
-                                                                           octaveCount:4
-                                                                           persistence:0.5
-                                                                            lacunarity:1.87
-                                                                                  seed:3];
+                                                                          octaveCount:4
+                                                                          persistence:0.5
+                                                                           lacunarity:1.87
+                                                                                 seed:3];
 
     assert(perlinNoise != NULL);
     GKNoise *noise = [[GKNoise alloc] initWithNoiseSource:perlinNoise];
 
-    
     GKNoiseMap *noiseMap = [[GKNoiseMap alloc] initWithNoise:noise
                                                         size:simd_make_double2(width, length)
                                                       origin:simd_make_double2(0, 0)
                                                  sampleCount:simd_make_int2(width, length)
                                                     seamless:true];
-    
+
     // Create Verticies
     for (int i = 0, l = 0; l <= length; l++) {
         for (int w = 0; w <= width; w++, i++) {
             float noiseAtPosition = [noiseMap valueAtPosition:simd_make_int2(w, l)];
-            verticies[i] = (vector_float3) { w, l, noiseAtPosition };
-//            NSLog(@"vector = %d, %d, %f", w, l, noiseAtPosition);
+            verticies[i]          = (vector_float3) { w, l, noiseAtPosition };
+            //            NSLog(@"vector = %d, %d, %f", w, l, noiseAtPosition);
         }
     }
 
@@ -220,13 +219,12 @@ static const size_t kAlignedUniformsSize = (sizeof(Uniforms) & ~0xFF) + 0x100;
     }
 
     for (int i = 0; i < _verticies_count; i++) {
-//        NSLog(@"triangle %f %f %f", triangles[i][0], triangles[i][1], triangles[i][2]);
+        //        NSLog(@"triangle %f %f %f", triangles[i][0], triangles[i][1], triangles[i][2]);
     }
 
     _mesh = [_device newBufferWithBytes:triangles
                                  length:sizeof(triangles)
                                 options:MTLResourceOptionCPUCacheModeDefault];
-
 }
 
 - (void)_updateDynamicBufferState

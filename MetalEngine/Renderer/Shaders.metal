@@ -18,7 +18,7 @@ using namespace metal;
 typedef struct
 {
     float3 position [[attribute(VertexAttributePosition)]];
-//    float2 texCoord [[attribute(VertexAttributeTexcoord)]];
+    //    float2 texCoord [[attribute(VertexAttributeTexcoord)]];
 } Vertex;
 
 typedef struct
@@ -30,18 +30,15 @@ typedef struct
 
 
 
-
-
-
 vertex ColorInOut vertexShader(device Vertex *vertices [[buffer(0)]],
-                               uint vid                [[vertex_id]],
-                               constant Uniforms & uniforms [[ buffer(BufferIndexUniforms) ]])
+    uint vid [[vertex_id]],
+    constant Uniforms &uniforms [[buffer(BufferIndexUniforms)]])
 {
     ColorInOut out;
-    Vertex in = vertices[vid];
+    Vertex in       = vertices[vid];
     float4 position = float4(in.position, 1.0);
-    out.position = uniforms.projectionMatrix * uniforms.modelViewMatrix * position;
-    out.color = float4(255, 255, 0, 1.0);
+    out.position    = uniforms.projectionMatrix * uniforms.modelViewMatrix * position;
+    out.color       = float4(255, 255, 0, 1.0);
     return out;
 }
 
@@ -50,27 +47,27 @@ fragment float4 fragmentShader(ColorInOut in [[stage_in]])
     return in.color;
 }
 
-//vertex ColorInOut vertexShader(Vertex in [[stage_in]],
-//                               constant Uniforms & uniforms [[ buffer(BufferIndexUniforms) ]])
+// vertex ColorInOut vertexShader(Vertex in [[stage_in]],
+//                                constant Uniforms & uniforms [[ buffer(BufferIndexUniforms) ]])
 //{
-//    ColorInOut out;
+//     ColorInOut out;
 //
-//    float4 position = float4(in.position, 1.0);
-//    out.position = uniforms.projectionMatrix * uniforms.modelViewMatrix * position;
-//    out.texCoord = in.texCoord;
+//     float4 position = float4(in.position, 1.0);
+//     out.position = uniforms.projectionMatrix * uniforms.modelViewMatrix * position;
+//     out.texCoord = in.texCoord;
 //
-//    return out;
-//}
+//     return out;
+// }
 //
-//fragment float4 fragmentShader(ColorInOut in [[stage_in]],
-//                               constant Uniforms & uniforms [[ buffer(BufferIndexUniforms) ]],
-//                               texture2d<half> colorMap     [[ texture(TextureIndexColor) ]])
+// fragment float4 fragmentShader(ColorInOut in [[stage_in]],
+//                                constant Uniforms & uniforms [[ buffer(BufferIndexUniforms) ]],
+//                                texture2d<half> colorMap     [[ texture(TextureIndexColor) ]])
 //{
-//    constexpr sampler colorSampler(mip_filter::linear,
-//                                   mag_filter::linear,
-//                                   min_filter::linear);
+//     constexpr sampler colorSampler(mip_filter::linear,
+//                                    mag_filter::linear,
+//                                    min_filter::linear);
 //
-//    half4 colorSample   = colorMap.sample(colorSampler, in.texCoord.xy);
+//     half4 colorSample   = colorMap.sample(colorSampler, in.texCoord.xy);
 //
-//    return float4(colorSample);
-//}
+//     return float4(colorSample);
+// }

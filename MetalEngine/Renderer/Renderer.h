@@ -5,10 +5,10 @@
 //  Created by Lachlan Russell on 12/11/21.
 //
 
+#import <GameplayKit/GameplayKit.h>
 #import <MetalKit/MetalKit.h>
 #import <ModelIO/ModelIO.h>
 #import <simd/simd.h>
-#import <GameplayKit/GameplayKit.h>
 
 // Include header shared between C code here, which executes Metal API commands, and .metal files
 #import "ShaderTypes.h"
