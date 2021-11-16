@@ -28,8 +28,6 @@ typedef struct
     float4 color;
 } ColorInOut;
 
-
-
 vertex ColorInOut vertexShader(device Vertex *vertices [[buffer(0)]],
     uint vid [[vertex_id]],
     constant Uniforms &uniforms [[buffer(BufferIndexUniforms)]])
