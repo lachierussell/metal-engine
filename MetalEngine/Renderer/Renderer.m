@@ -241,11 +241,10 @@ static const size_t kAlignedUniformsSize = (sizeof(Uniforms) & ~0xFF) + 0x100;
 
     uniforms->projectionMatrix = _projectionMatrix;
 
-    simd_float3 rotationAxis  = { 1, 1, 0 };
-    simd_float4x4 modelMatrix = matrix4x4_rotation(_rotation, rotationAxis);
+//    simd_float3 rotationAxis  = { 1, 1, 0 };
+    simd_float4x4 modelMatrix = matrix_identity_float4x4; // matrix4x4_rotation(_rotation, rotationAxis);
     uniforms->modelMatrix     = modelMatrix;
-    //    simd_float4x4 modelView = matrix_multiply([_camera getViewMatrix], modelMatrix);
-    uniforms->viewMatrix   = [_camera getViewMatrix];
+    uniforms->modelViewMatrix = matrix_multiply([_camera getViewMatrix], modelMatrix);
     simd_float3x3 normals  = { modelMatrix.columns[0].xyz, modelMatrix.columns[1].xyz, modelMatrix.columns[2].xyz };
     uniforms->normalMatrix = simd_transpose(normals);
 

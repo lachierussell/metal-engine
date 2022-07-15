@@ -24,11 +24,9 @@ typedef struct
 typedef struct
 {
     float4 position [[position]];
-    float4 modelViewPosition;
-    float4 normal;
-    float4 globalPosition;
-    float4 cameraDirection;
-    float4 color;
+    float3 color;
+    float3 modelViewPosition;
+    float3 normalInterp;
 } ColorInOut;
 
 vertex ColorInOut vertexShader(
@@ -38,14 +36,13 @@ vertex ColorInOut vertexShader(
 {
     ColorInOut out;
     Vertex in = vertices[vid];
-
-    float4 normal = uniforms.viewMatrix * uniforms.modelMatrix * float4(in.normal, 1.0);
-
-    out.modelViewPosition = uniforms.viewMatrix * uniforms.modelMatrix * float4(in.position, 1.0);
-    out.globalPosition    = uniforms.modelMatrix * float4(in.position, 1.0);
-    out.position          = uniforms.projectionMatrix * out.modelViewPosition;
-    out.normal            = normalize(normal);
-    out.color             = float4(0.1, 0.1, 0.1, 1.0);
+    
+    float4 modelViewVector = uniforms.modelViewMatrix * float4(in.position, 1.0);
+    
+    out.position          = uniforms.projectionMatrix * uniforms.modelViewMatrix * float4(in.position, 1.0);
+    out.modelViewPosition = modelViewVector.xyz / modelViewVector.w;
+    out.normalInterp      = uniforms.normalMatrix * in.normal;
+    out.color             = float3(0.5, 0.5, 0.5);
     return out;
 }
 
@@ -54,45 +51,38 @@ fragment float4 fragmentShader(
     constant Uniforms &uniforms [[buffer(BufferIndexUniforms)]])
 {
     // Light attributes
-    const float4 lightPosition = float4(100, 50, 100, 1.0);
-    const float4 lightColor    = float4(1.0, 1.0, 1.0, 1.0);
-    const float lightPower     = 10;
-    const float point          = 0.0;
-    const float tube           = 1.0;
-    const float ambient        = 0.0;
+    const float3 lightPosition = float3(0, 50, 0);
+    const float3 lightColor    = float3(1.0, 1.0, 1.0);
+    const float lightPower     = 10000.0;
 
     // Object attributes
-    const float shininess        = 50;
-    const float4 specularProduct = float4(1.1, 1.1, 1.1, 2.0);
-    const float4 diffuseProduct  = float4(1.1, 1.1, 1.1, 1.0);
-    const float4 ambientProduct  = float4(0.1, 0.1, 0.1, 1.0);
+    const float shininess      = 8;
+    const float3 specularColor = float3(0.1, 0.1, 0.1);
+    const float3 diffuseColor  = float3(0.5, 0.5, 0.5);
+    const float3 ambientColor  = float3(0.1, 0.1, 0.1);
 
-    float4 normal         = normalize(in.normal);
-    float4 globalPosition = normalize(in.globalPosition);
-
-    float4 lightVector  = lightPosition - in.globalPosition;
-    float lightDistance = length(lightVector);
-    float attenuation   = 1.0
-        / ((point * pow(lightDistance, 2.0)) + (tube * lightDistance) + ambient);
-
-    float4 light   = normalize(lightVector);
-    float4 halfway = normalize(light + globalPosition);
-
-    float kd       = max(dot(normal, light), 0.0);
-    float4 diffuse = kd * diffuseProduct;
-
-    float ks        = pow(min(dot(normal, halfway), 0.0), shininess);
-    float4 specular = ks * specularProduct;
-
-    if (dot(light, normal) > 0.0) {
-        specular = float4(0, 0, 0, 0);
+    float3 normal = normalize(in.normalInterp);  // Need to normalize interpolated normals
+    float3 lightDirection = lightPosition - in.modelViewPosition;
+    float lightDistance = length(lightDirection);
+    lightDistance = pow(lightDistance, 2);
+    lightDirection = normalize(lightDirection);
+    
+    float lamertian = max(dot(lightDirection, normal), 0.0);
+    float specular = 0.0;
+    
+    if (lamertian > 0.0) {
+        float3 viewDirection = normalize(-in.modelViewPosition);
+        
+        float3 halfway = normalize(lightDirection + viewDirection);
+        float specularAngle = max(dot(halfway, normal), 0.0);
+        
+        specular = pow(specularAngle, shininess);
     }
-
-    float4 highlightFactor = lightPower * lightColor;
-    float4 phong           = attenuation * highlightFactor * (diffuse + specular);
-
-    float4 phongShading = phong + ambientProduct;
-
-    return phongShading;
-    return (phong + ambientProduct) * in.color;
+    
+    float3 colorLinear = ambientColor
+                    + diffuseColor * lamertian * lightColor * lightPower / lightDistance
+                    + specularColor * specular * lightColor * lightPower / lightDistance;
+    
+//    return float4(0.5, 0.5, 0.5, 1.0);
+    return float4(colorLinear, 1.0);
 }
