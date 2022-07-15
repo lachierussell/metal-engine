@@ -8,10 +8,11 @@
 #import "GameViewController.h"
 #import "Renderer.h"
 
+
 @implementation GameViewController {
     MTKView *_view;
-
     Renderer *_renderer;
+    NSMutableSet<NSNumber *> *_pressedKeys;
 }
 
 - (void)viewDidLoad

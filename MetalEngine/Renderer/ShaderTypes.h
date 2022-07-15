@@ -24,13 +24,13 @@
 
 typedef NS_ENUM(NSInteger, BufferIndex) {
     BufferIndexMeshPositions = 0,
-    BufferIndexMeshGenerics  = 1,
+    BufferIndexMeshNormals   = 1,
     BufferIndexUniforms      = 2
 };
 
 typedef NS_ENUM(NSInteger, VertexAttribute) {
     VertexAttributePosition = 0,
-    VertexAttributeTexcoord = 1,
+    VertexAttributeNormal = 1,
 };
 
 typedef NS_ENUM(NSInteger, TextureIndex) {
@@ -40,7 +40,9 @@ typedef NS_ENUM(NSInteger, TextureIndex) {
 typedef struct
 {
     matrix_float4x4 projectionMatrix;
-    matrix_float4x4 modelViewMatrix;
+    matrix_float4x4 viewMatrix;
+    matrix_float3x3 normalMatrix;
+    matrix_float4x4 modelMatrix;
 } Uniforms;
 
 #endif /* ShaderTypes_h */

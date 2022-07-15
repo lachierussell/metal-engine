@@ -12,6 +12,7 @@
 
 // Include header shared between C code here, which executes Metal API commands, and .metal files
 #import "ShaderTypes.h"
+#import "../Components/Terrain.h"
 
 // Our platform independent renderer class.   Implements the MTKViewDelegate protocol which
 //   allows it to accept per-frame update and drawable resize callbacks.
