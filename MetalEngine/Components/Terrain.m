@@ -97,8 +97,8 @@
     for (int i = 0, l = 0; l <= _length; l++) {
         for (int w = 0; w <= _width; w++, i++) {
             float noiseAtPosition = [_noiseMap valueAtPosition:simd_make_int2(w, l)]; // Between -1 and 1
-            _verticies[i] = (simd_float3) { w, ((noiseAtPosition + 1) / 2) * 20, l };
-//            _verticies[i] = (simd_float3) { w, 0, l };
+            _verticies[i]         = (simd_float3) { w, ((noiseAtPosition + 1) / 2) * 20, l };
+            //            _verticies[i] = (simd_float3) { w, 0, l };
         }
     }
 

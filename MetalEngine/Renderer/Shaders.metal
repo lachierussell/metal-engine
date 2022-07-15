@@ -40,7 +40,7 @@ vertex ColorInOut vertexShader(
     Vertex in = vertices[vid];
 
     float4 normal = uniforms.viewMatrix * uniforms.modelMatrix * float4(in.normal, 1.0);
-    
+
     out.modelViewPosition = uniforms.viewMatrix * uniforms.modelMatrix * float4(in.position, 1.0);
     out.globalPosition    = uniforms.modelMatrix * float4(in.position, 1.0);
     out.position          = uniforms.projectionMatrix * out.modelViewPosition;
@@ -67,8 +67,8 @@ fragment float4 fragmentShader(
     const float4 diffuseProduct  = float4(1.1, 1.1, 1.1, 1.0);
     const float4 ambientProduct  = float4(0.1, 0.1, 0.1, 1.0);
 
-    float4 normal = normalize(in.normal);
-    float4 globalPosition   = normalize(in.globalPosition);
+    float4 normal         = normalize(in.normal);
+    float4 globalPosition = normalize(in.globalPosition);
 
     float4 lightVector  = lightPosition - in.globalPosition;
     float lightDistance = length(lightVector);
@@ -84,15 +84,15 @@ fragment float4 fragmentShader(
     float ks        = pow(min(dot(normal, halfway), 0.0), shininess);
     float4 specular = ks * specularProduct;
 
-    if(dot(light, normal) > 0.0) {
+    if (dot(light, normal) > 0.0) {
         specular = float4(0, 0, 0, 0);
     }
 
     float4 highlightFactor = lightPower * lightColor;
-    float4 phong = attenuation * highlightFactor * (diffuse + specular);
+    float4 phong           = attenuation * highlightFactor * (diffuse + specular);
 
     float4 phongShading = phong + ambientProduct;
-    
+
     return phongShading;
     return (phong + ambientProduct) * in.color;
 }
