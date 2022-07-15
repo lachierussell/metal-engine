@@ -7,24 +7,23 @@
 
 #import "PCDRCamera.h"
 
-
 @implementation PCDRCamera {
     simd_float4 _inversePosition;
     simd_float4x4 _viewMatrix;
 }
 
-- (nonnull instancetype)initWithPosition: (simd_float4)position
+- (nonnull instancetype)initWithPosition:(simd_float4)position
 {
     self = [super init];
     if (self) {
         simd_float4x4 viewMatrix = matrix_identity_float4x4;
-        _inversePosition = matrix_multiply(position, viewMatrix);
-        _viewMatrix = matrix4x4_translation(-50, -30, -100.0);
-        [NSEvent addLocalMonitorForEventsMatchingMask: NSEventMaskKeyDown
-                                              handler: ^NSEvent*(NSEvent* event){
-            [self keyDown:event];
-            return nil;
-        }];
+        _inversePosition         = matrix_multiply(position, viewMatrix);
+        _viewMatrix              = matrix4x4_translation(-50, -30, -100.0);
+        [NSEvent addLocalMonitorForEventsMatchingMask:NSEventMaskKeyDown
+                                              handler:^NSEvent *(NSEvent *event) {
+                                                  [self keyDown:event];
+                                                  return nil;
+                                              }];
     }
     return self;
 }
@@ -39,61 +38,60 @@
     return _viewMatrix;
 }
 
-- (void)updateWithTimeDelta: (float)timeDelta
+- (void)updateWithTimeDelta:(float)timeDelta
 {
-    
 }
 
-- (void)keyDown: (nullable NSEvent*)event
+- (void)keyDown:(nullable NSEvent *)event
 {
     simd_float4x4 rotation;
     simd_float4x4 translation;
-    float rotateSpeed = 0.05;
+    float rotateSpeed    = 0.05;
     float translateSpeed = 5;
-    
+
     switch (event.keyCode) {
-        case 125:
-//            NSLog(@"Rotate down");
-            rotation = matrix4x4_rotation(rotateSpeed, (simd_float3){1, 0, 0});
-            _viewMatrix = matrix_multiply(rotation, _viewMatrix);
-            break;
-        case 126:
-//            NSLog(@"Rotate up");
-            rotation = matrix4x4_rotation(-rotateSpeed, (simd_float3){1, 0, 0});
-            _viewMatrix = matrix_multiply(rotation, _viewMatrix);
-            break;
-        case 123:
-//            NSLog(@"Rotate left");
-            rotation = matrix4x4_rotation(-rotateSpeed, (simd_float3){0, 1, 0});
-            _viewMatrix = matrix_multiply(rotation, _viewMatrix);
-            break;
-        case 124:
-//            NSLog(@"Rotate right");
-            rotation = matrix4x4_rotation(rotateSpeed, (simd_float3){0, 1, 0});
-            _viewMatrix = matrix_multiply(rotation, _viewMatrix);
-            break;
-        case 13:
-//            NSLog(@"Move forward");
-            translation = matrix4x4_translation(0, 0, translateSpeed);
-            _viewMatrix = matrix_multiply(translation, _viewMatrix);
-            break;
-        case 1:
-//            NSLog(@"Move backward");
-            translation = matrix4x4_translation(0, 0, -translateSpeed);
-            _viewMatrix = matrix_multiply(translation, _viewMatrix);
-            break;
-        case 0:
-//            NSLog(@"Move left");
-            translation = matrix4x4_translation(translateSpeed, 0, 0);
-            _viewMatrix = matrix_multiply(translation, _viewMatrix);
-            break;
-        case 2:
-//            NSLog(@"Move right");
-            translation = matrix4x4_translation(-translateSpeed, 0, 0);
-            _viewMatrix = matrix_multiply(translation, _viewMatrix);
-            break;
-        default:
-            NSLog(@"%@", event.description);
+    case 125:
+        //            NSLog(@"Rotate down");
+        rotation    = matrix4x4_rotation(rotateSpeed, (simd_float3) { 1, 0, 0 });
+        _viewMatrix = matrix_multiply(rotation, _viewMatrix);
+        break;
+    case 126:
+        //            NSLog(@"Rotate up");
+        rotation    = matrix4x4_rotation(-rotateSpeed, (simd_float3) { 1, 0, 0 });
+        _viewMatrix = matrix_multiply(rotation, _viewMatrix);
+        break;
+    case 123:
+        //            NSLog(@"Rotate left");
+        rotation    = matrix4x4_rotation(-rotateSpeed, (simd_float3) { 0, 1, 0 });
+        _viewMatrix = matrix_multiply(rotation, _viewMatrix);
+        break;
+    case 124:
+        //            NSLog(@"Rotate right");
+        rotation    = matrix4x4_rotation(rotateSpeed, (simd_float3) { 0, 1, 0 });
+        _viewMatrix = matrix_multiply(rotation, _viewMatrix);
+        break;
+    case 13:
+        //            NSLog(@"Move forward");
+        translation = matrix4x4_translation(0, 0, translateSpeed);
+        _viewMatrix = matrix_multiply(translation, _viewMatrix);
+        break;
+    case 1:
+        //            NSLog(@"Move backward");
+        translation = matrix4x4_translation(0, 0, -translateSpeed);
+        _viewMatrix = matrix_multiply(translation, _viewMatrix);
+        break;
+    case 0:
+        //            NSLog(@"Move left");
+        translation = matrix4x4_translation(translateSpeed, 0, 0);
+        _viewMatrix = matrix_multiply(translation, _viewMatrix);
+        break;
+    case 2:
+        //            NSLog(@"Move right");
+        translation = matrix4x4_translation(-translateSpeed, 0, 0);
+        _viewMatrix = matrix_multiply(translation, _viewMatrix);
+        break;
+    default:
+        NSLog(@"%@", event.description);
     }
 }
 

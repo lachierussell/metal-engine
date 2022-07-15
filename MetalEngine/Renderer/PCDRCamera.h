@@ -8,8 +8,8 @@
 #ifndef PCDRCamera_h
 #define PCDRCamera_h
 
-#import <Foundation/Foundation.h>
 #import <AppKit/AppKit.h>
+#import <Foundation/Foundation.h>
 #import <GameplayKit/GameplayKit.h>
 #import <MetalKit/MetalKit.h>
 #import <ModelIO/ModelIO.h>
@@ -17,7 +17,7 @@
 
 // List the keys in use within this sample
 // The enum value is the NSEvent key code
-//NS_OPTIONS(uint8_t, Controls) {
+// NS_OPTIONS(uint8_t, Controls) {
 //    // Keycodes that control translation
 //    controlsForward     = 0x0d, // W key
 //    controlsBackward    = 0x01, // S key
@@ -43,13 +43,13 @@
 //    controlsSlow = 0x81
 //};
 
-
 @interface PCDRCamera : NSResponder {
-    @public matrix_float4x4 viewMatrix;
+@public
+    matrix_float4x4 viewMatrix;
 }
-- (nonnull instancetype)initWithPosition: (simd_float4)position;
-- (void)keyDown:(nullable NSEvent*)event;
-- (void)updateWithTimeDelta: (float)timeDelta;
+- (nonnull instancetype)initWithPosition:(simd_float4)position;
+- (void)keyDown:(nullable NSEvent *)event;
+- (void)updateWithTimeDelta:(float)timeDelta;
 - (simd_float4)getPosition;
 - (simd_float4x4)getViewMatrix;
 
@@ -57,9 +57,6 @@ matrix_float4x4 matrix4x4_translation(float tx, float ty, float tz);
 matrix_float4x4 matrix4x4_rotation(float radians, vector_float3 axis);
 matrix_float4x4 matrix_perspective_right_hand(float fovyRadians, float aspect, float nearZ, float farZ);
 
-
 @end
-
-
 
 #endif /* PCDRCamera_h */

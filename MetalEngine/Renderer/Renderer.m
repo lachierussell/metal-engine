@@ -31,7 +31,7 @@ static const size_t kAlignedUniformsSize = (sizeof(Uniforms) & ~0xFF) + 0x100;
 
     matrix_float4x4 _projectionMatrix;
     PCDRCamera *_camera;
-    
+
     Terrain *_mesh;
 
     float _rotation;
@@ -47,10 +47,10 @@ static const size_t kAlignedUniformsSize = (sizeof(Uniforms) & ~0xFF) + 0x100;
         _inFlightSemaphore = dispatch_semaphore_create(kMaxBuffersInFlight);
         [self _loadMetalWithView:view];
         [self _loadAssets];
-        simd_float4 cameraInitPosition = {0, 0, 0, 0};
-        _camera = [[PCDRCamera alloc] initWithPosition: cameraInitPosition];
+        simd_float4 cameraInitPosition = { 0, 0, 0, 0 };
+        _camera                        = [[PCDRCamera alloc] initWithPosition:cameraInitPosition];
     }
-    
+
     return self;
 }
 
@@ -61,14 +61,14 @@ static const size_t kAlignedUniformsSize = (sizeof(Uniforms) & ~0xFF) + 0x100;
     _mtlVertexDescriptor.attributes[VertexAttributePosition].format      = MTLVertexFormatFloat3;
     _mtlVertexDescriptor.attributes[VertexAttributePosition].offset      = 0;
     _mtlVertexDescriptor.attributes[VertexAttributePosition].bufferIndex = BufferIndexMeshPositions;
-    
+
     _mtlVertexDescriptor.attributes[VertexAttributeNormal].format      = MTLVertexFormatFloat3;
     _mtlVertexDescriptor.attributes[VertexAttributeNormal].offset      = sizeof(simd_float3);
     _mtlVertexDescriptor.attributes[VertexAttributeNormal].bufferIndex = BufferIndexMeshPositions;
-    
-    _mtlVertexDescriptor.layouts[0].stride = sizeof(VERTEX);
+
+    _mtlVertexDescriptor.layouts[0].stride       = sizeof(VERTEX);
     _mtlVertexDescriptor.layouts[0].stepFunction = MTLVertexStepFunctionPerVertex;
-    
+
     //    _mtlVertexDescriptor.layouts[BufferIndexMeshPositions].stride       = 12;
     //    _mtlVertexDescriptor.layouts[BufferIndexMeshPositions].stepRate     = 1;
     //    _mtlVertexDescriptor.layouts[BufferIndexMeshPositions].stepFunction = MTLVertexStepFunctionPerVertex;
@@ -81,8 +81,8 @@ static const size_t kAlignedUniformsSize = (sizeof(Uniforms) & ~0xFF) + 0x100;
     id<MTLFunction> vertexFunction   = [defaultLibrary newFunctionWithName:@"vertexShader"];
     id<MTLFunction> fragmentFunction = [defaultLibrary newFunctionWithName:@"fragmentShader"];
 
-    MTLRenderPipelineDescriptor *pipelineStateDescriptor = [[MTLRenderPipelineDescriptor alloc] init];
-    pipelineStateDescriptor.label                        = @"MyPipeline";
+    MTLRenderPipelineDescriptor *pipelineStateDescriptor    = [[MTLRenderPipelineDescriptor alloc] init];
+    pipelineStateDescriptor.label                           = @"MyPipeline";
     pipelineStateDescriptor.vertexFunction                  = vertexFunction;
     pipelineStateDescriptor.fragmentFunction                = fragmentFunction;
     pipelineStateDescriptor.vertexDescriptor                = _mtlVertexDescriptor;
@@ -96,7 +96,7 @@ static const size_t kAlignedUniformsSize = (sizeof(Uniforms) & ~0xFF) + 0x100;
     }
 
     NSUInteger uniformBufferSize = kAlignedUniformsSize * kMaxBuffersInFlight;
-    _dynamicUniformBuffer = [_device newBufferWithLength:uniformBufferSize
+    _dynamicUniformBuffer        = [_device newBufferWithLength:uniformBufferSize
                                                  options:MTLResourceStorageModeShared];
 
     _dynamicUniformBuffer.label = @"UniformBuffer";
@@ -126,10 +126,10 @@ static const size_t kAlignedUniformsSize = (sizeof(Uniforms) & ~0xFF) + 0x100;
     _mesh = [[Terrain alloc] initWithDevice:_device
                                       width:100
                                      length:100];
-//
-//    [self createLandscapeWithWidth:100
-//                            length:100
-//                            buffer:_mesh];
+    //
+    //    [self createLandscapeWithWidth:100
+    //                            length:100
+    //                            buffer:_mesh];
 
     //    MDLVertexDescriptor *mdlVertexDescriptor = MTKModelIOVertexDescriptorFromMetal(_mtlVertexDescriptor);
     //
@@ -197,7 +197,7 @@ static const size_t kAlignedUniformsSize = (sizeof(Uniforms) & ~0xFF) + 0x100;
         for (int w = 0; w <= width; w++, i++) {
             float noiseAtPosition = [noiseMap valueAtPosition:simd_make_int2(w, l)];
             verticies[i]          = (simd_float3) { w, ((noiseAtPosition + 1) / 2) * 20, l }; // noiseAtPosition between -1 and 1. Scale to 0-255
-//            NSLog(@"vector = %f", verticies[i][2]);
+            //            NSLog(@"vector = %f", verticies[i][2]);
         }
     }
 
@@ -222,7 +222,6 @@ static const size_t kAlignedUniformsSize = (sizeof(Uniforms) & ~0xFF) + 0x100;
                                 options:MTLResourceOptionCPUCacheModeDefault];
 }
 
-
 - (void)_updateDynamicBufferState
 {
     /// Update the state of our uniform buffers before rendering
@@ -242,20 +241,20 @@ static const size_t kAlignedUniformsSize = (sizeof(Uniforms) & ~0xFF) + 0x100;
 
     uniforms->projectionMatrix = _projectionMatrix;
 
-    simd_float3 rotationAxis    = { 1, 1, 0 };
+    simd_float3 rotationAxis  = { 1, 1, 0 };
     simd_float4x4 modelMatrix = matrix4x4_rotation(_rotation, rotationAxis);
-    uniforms->modelMatrix = modelMatrix;
-//    simd_float4x4 modelView = matrix_multiply([_camera getViewMatrix], modelMatrix);
-    uniforms->viewMatrix = [_camera getViewMatrix];
-    simd_float3x3 normals = { modelMatrix.columns[0].xyz, modelMatrix.columns[1].xyz, modelMatrix.columns[2].xyz};
+    uniforms->modelMatrix     = modelMatrix;
+    //    simd_float4x4 modelView = matrix_multiply([_camera getViewMatrix], modelMatrix);
+    uniforms->viewMatrix   = [_camera getViewMatrix];
+    simd_float3x3 normals  = { modelMatrix.columns[0].xyz, modelMatrix.columns[1].xyz, modelMatrix.columns[2].xyz };
     uniforms->normalMatrix = simd_transpose(normals);
-    
+
     [_mesh evolveMesh];
-    
+
     _time += .005;
-//    _rotation = sinf(_time);
+    //    _rotation = sinf(_time);
 }
-    
+
 - (void)drawInMTKView:(nonnull MTKView *)view
 {
     /// Per frame updates here

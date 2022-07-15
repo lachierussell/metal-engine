@@ -8,7 +8,6 @@
 #import "GameViewController.h"
 #import "Renderer.h"
 
-
 @implementation GameViewController {
     MTKView *_view;
     Renderer *_renderer;

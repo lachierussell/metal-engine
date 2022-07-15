@@ -11,7 +11,7 @@
 #import <ModelIO/ModelIO.h>
 #import <simd/simd.h>
 
-@interface Terrain: NSObject
+@interface Terrain : NSObject
 
 - (instancetype)initWithDevice:(id<MTLDevice>)device width:(int)width length:(int)length;
 - (void)createBlankMesh;
@@ -22,7 +22,6 @@
 - (int)getVerticies;
 
 @end
-
 
 typedef struct {
     simd_float3 position;
