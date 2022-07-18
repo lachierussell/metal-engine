@@ -249,11 +249,11 @@ static const size_t kAlignedUniformsSize = (sizeof(Uniforms) & ~0xFF) + 0x100;
     simd_float3x3 normals     = { modelMatrix.columns[0].xyz, modelMatrix.columns[1].xyz, modelMatrix.columns[2].xyz };
     uniforms->normalMatrix    = simd_transpose(normals);
 
-//    if (_time % 5 == 0 || true) {
-//        [_mesh evolveMesh];
-//    }
+    //    if (_time % 5 == 0 || true) {
+    //        [_mesh evolveMesh];
+    //    }
 
-    _time = 0.01;
+    _time     = 0.01;
     _rotation = _time;
 }
 

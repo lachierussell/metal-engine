@@ -30,13 +30,13 @@
 - (simd_float4x4)getViewMatrix
 {
     simd_float4x4 viewMatrix = _translation;
-    
-    simd_float4x4  horizontal = matrix4x4_rotation(_horizontalAngle, (simd_float3) { 0, 1, 0 });
-    simd_float4x4  vertical = matrix4x4_rotation(_verticalAngle, (simd_float3) { 1, 0, 0 });
-    
+
+    simd_float4x4 horizontal = matrix4x4_rotation(_horizontalAngle, (simd_float3) { 0, 1, 0 });
+    simd_float4x4 vertical   = matrix4x4_rotation(_verticalAngle, (simd_float3) { 1, 0, 0 });
+
     viewMatrix = matrix_multiply(horizontal, viewMatrix);
     viewMatrix = matrix_multiply(vertical, viewMatrix);
-    
+
     return viewMatrix;
 }
 
@@ -74,27 +74,27 @@
         break;
     case 13:
         // NSLog(@"Move forward");
-        translation = matrix4x4_translation(0, 0, translateSpeed);
-        translation = rotateTranslation([self getHorizontalRotation], translation);
+        translation  = matrix4x4_translation(0, 0, translateSpeed);
+        translation  = rotateTranslation([self getHorizontalRotation], translation);
         _translation = matrix_multiply(translation, _translation);
-        
+
         break;
     case 1:
         // NSLog(@"Move backward");
-        translation = matrix4x4_translation(0, 0, -translateSpeed);
-        translation = rotateTranslation([self getHorizontalRotation], translation);
+        translation  = matrix4x4_translation(0, 0, -translateSpeed);
+        translation  = rotateTranslation([self getHorizontalRotation], translation);
         _translation = matrix_multiply(translation, _translation);
         break;
     case 0:
         // NSLog(@"Move left");
-        translation = matrix4x4_translation(translateSpeed, 0, 0);
-        translation = rotateTranslation([self getHorizontalRotation], translation);
+        translation  = matrix4x4_translation(translateSpeed, 0, 0);
+        translation  = rotateTranslation([self getHorizontalRotation], translation);
         _translation = matrix_multiply(translation, _translation);
         break;
     case 2:
         // NSLog(@"Move right");
-        translation = matrix4x4_translation(-translateSpeed, 0, 0);
-        translation = rotateTranslation([self getHorizontalRotation], translation);
+        translation  = matrix4x4_translation(-translateSpeed, 0, 0);
+        translation  = rotateTranslation([self getHorizontalRotation], translation);
         _translation = matrix_multiply(translation, _translation);
         break;
     default:
@@ -102,12 +102,14 @@
     }
 }
 
-simd_float4x4 rotateTranslation(simd_float4x4 rotation, simd_float4x4 translation) {
+simd_float4x4 rotateTranslation(simd_float4x4 rotation, simd_float4x4 translation)
+{
     simd_float4x4 rotated = matrix_multiply(translation, rotation);
     return matrix_multiply(matrix_invert(rotation), rotated);
 }
 
-void matrix4x4_print(simd_float4x4 rotation) {
+void matrix4x4_print(simd_float4x4 rotation)
+{
     NSLog(@"Matrix 4x4:");
     NSLog(@"%f %f %f %f", rotation.columns[0].x, rotation.columns[1].x, rotation.columns[2].x, rotation.columns[3].x);
     NSLog(@"%f %f %f %f", rotation.columns[0].y, rotation.columns[1].y, rotation.columns[2].y, rotation.columns[3].y);

@@ -97,12 +97,12 @@
     for (int i = 0, l = 0; l <= _length; l++) {
         for (int w = 0; w <= _width; w++, i++) {
             if (w % _width == 0 || l % _length == 0) {
-                _verticies[i] = (simd_float3) {w, 0, l};
+                _verticies[i] = (simd_float3) { w, 0, l };
             } else {
                 float noiseAtPosition = [_noiseMap valueAtPosition:simd_make_int2(w, l)]; // Between -1 and 1
                 _verticies[i]         = (simd_float3) { w, ((noiseAtPosition + 1.0) / 2.0) * 20.0, l };
             }
-//            _verticies[i] = (simd_float3) { w, 0, l };
+            //            _verticies[i] = (simd_float3) { w, 0, l };
         }
     }
 
@@ -118,9 +118,9 @@
     //    simd_float3* vertexNormals = calloc(triangleCount, sizeof(simd_float3));
 
     for (int i = 0; i < triangleCount; i++) {
-        int triangleIndex = i * 3;
+        int triangleIndex  = i * 3;
         simd_float3 normal = [self surfaceNormalFromTriangle:triangleIndex];
-        
+
         _triangles[triangleIndex].normal     = normal;
         _triangles[triangleIndex + 1].normal = normal;
         _triangles[triangleIndex + 2].normal = normal;
