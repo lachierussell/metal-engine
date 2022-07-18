@@ -50,7 +50,7 @@
 - (nonnull instancetype)initWithPosition:(simd_float4)position;
 - (void)keyDown:(nullable NSEvent *)event;
 - (void)updateWithTimeDelta:(float)timeDelta;
-- (simd_float4)getPosition;
+//- (simd_float4)getPosition;
 - (simd_float4x4)getViewMatrix;
 
 matrix_float4x4 matrix4x4_translation(float tx, float ty, float tz);
