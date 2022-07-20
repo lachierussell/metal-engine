@@ -44,7 +44,7 @@ static const size_t kAlignedUniformsSize = (sizeof(Uniforms) & ~0xFF) + 0x100;
 {
     self = [super init];
     if (self) {
-        _falloff = true;
+        _falloff           = true;
         _device            = view.device;
         _inFlightSemaphore = dispatch_semaphore_create(kMaxBuffersInFlight);
         [self _loadMetalWithView:view];
@@ -134,7 +134,7 @@ static const size_t kAlignedUniformsSize = (sizeof(Uniforms) & ~0xFF) + 0x100;
                                           width:100
                                          length:100];
     }
-    
+
     //
     //    [self createLandscapeWithWidth:100
     //                            length:100
@@ -206,8 +206,8 @@ static const size_t kAlignedUniformsSize = (sizeof(Uniforms) & ~0xFF) + 0x100;
         [_mesh growMesh];
     }
 
-    _time    += 0.01;
-//    _rotation = _time;
+    _time += 0.01;
+    //    _rotation = _time;
 }
 
 - (void)drawInMTKView:(nonnull MTKView *)view

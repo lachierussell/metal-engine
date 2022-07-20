@@ -35,10 +35,10 @@ typedef struct
 float3 surface(float height, float3 normal)
 {
     float3 horizon = float3(0, 1, 0);
-    float angle = dot(normalize(normal), normalize(horizon));
-    
+    float angle    = dot(normalize(normal), normalize(horizon));
+
     float3 color = float3(1.0, 1.0, 1.0);
-    
+
     if (height < 10) {
         if (height == 0) {
             color = float3(0, 0.4, 0.8); // Blue
@@ -51,7 +51,6 @@ float3 surface(float height, float3 normal)
     return color;
 }
 
-
 vertex ColorInOut vertexShader(
     const device Vertex *vertices [[buffer(0)]],
     uint vid [[vertex_id]],
@@ -62,7 +61,7 @@ vertex ColorInOut vertexShader(
 
     float4 modelViewPosition = uniforms.modelViewMatrix * float4(in.position, 1.0);
     float4 modelPosition     = uniforms.modelMatrix * float4(in.position, 1.0);
-    float4 normalVector    = uniforms.modelViewMatrix * float4(in.normal, 0.0);
+    float4 normalVector      = uniforms.modelViewMatrix * float4(in.normal, 0.0);
 
     out.position       = uniforms.projectionMatrix * uniforms.modelViewMatrix * float4(in.position, 1.0);
     out.viewPosition   = modelViewPosition.xyz / modelViewPosition.w;
@@ -76,13 +75,12 @@ vertex ColorInOut vertexShader(
     return out;
 }
 
-
 fragment float4 fragmentShader(
     ColorInOut in [[stage_in]],
     constant Uniforms &uniforms [[buffer(BufferIndexUniforms)]])
 {
     const float3 inColor = in.color;
-    
+
     // Light attributes
     const float4 light4Position = uniforms.viewMatrix * float4(1000, 1000, 50, 1.0);
 

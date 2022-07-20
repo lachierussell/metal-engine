@@ -19,7 +19,7 @@
 
     GKNoise *_noise;
     GKNoiseMap *_noiseMap;
-    float* _falloffMap;
+    float *_falloffMap;
 }
 
 - (instancetype)initWithDevice:(id<MTLDevice>)device width:(int)width length:(int)length
@@ -73,7 +73,7 @@
                                            origin:simd_make_double2(0, 0)
                                       sampleCount:simd_make_int2(_width, _length)
                                          seamless:true];
-    
+
     assert(perlinNoise != NULL);
     _noise = [[GKNoise alloc] initWithNoiseSource:perlinNoise];
 }
@@ -93,8 +93,8 @@
     // Create Triangles
     for (int ti = 0, vi = 0, l = 0; l < _length; l++, vi++) {
         for (int w = 0; w < _width; w++, ti += 6, vi++) {
-            simd_float3 normal = [self calculateNormalAt: vi];
-            
+            simd_float3 normal = [self calculateNormalAt:vi];
+
             _triangles[ti].position     = _verticies[vi];
             _triangles[ti + 1].position = _verticies[vi + _width + 1];
             _triangles[ti + 2].position = _verticies[vi + 1];
@@ -107,17 +107,17 @@
     [self calculateNormals];
 }
 
-- (float*)generateFalloffMapWithWidth:(float)width length:(float)length
+- (float *)generateFalloffMapWithWidth:(float)width length:(float)length
 {
-    float* falloffMap = calloc(width * length, sizeof(float));
-    
+    float *falloffMap = calloc(width * length, sizeof(float));
+
     for (int i = 0, l = 0; l <= length; l++) {
         for (int w = 0; w <= width; w++, i++) {
             float x = fabs(2 * l / (float)_length - 1);
             float y = fabs(2 * w / (float)_width - 1);
-            
+
             float value = fmax(x, y);
-            
+
             falloffMap[i] = fmin(fmax([Terrain evaluateFalloff:value], 0), 1);
         }
     }
@@ -128,7 +128,7 @@
 {
     float a = 3;
     float b = 2.2;
-    
+
     return pow(value, a) / (pow(value, a) + pow(b - b * value, a));
 }
 
@@ -140,7 +140,7 @@
                                        origin:simd_make_double2(_iteration, _iteration)
                                   sampleCount:simd_make_int2(_width, _length)
                                      seamless:true];
-    
+
     // Move verticies
     for (int i = 0, l = 0; l <= _length; l++) {
         for (int w = 0; w <= _width; w++, i++) {
@@ -149,7 +149,7 @@
                 noiseAtPosition = fmax(fmin(noiseAtPosition - _falloffMap[i], 1), 0);
             }
             noiseAtPosition *= 20;
-            _verticies[i]    = (simd_float3) { w, noiseAtPosition, l };
+            _verticies[i] = (simd_float3) { w, noiseAtPosition, l };
         }
     }
 
@@ -161,8 +161,7 @@
 
 - (simd_float3)calculateNormalAt:(int)vertex
 {
-    
-    
+
     return simd_make_float3(0, 0, 0);
 }
 
@@ -172,10 +171,10 @@
     //    simd_float3* vertexNormals = calloc(triangleCount, sizeof(simd_float3));
 
     for (int i = 0; i < triangleCount; i++) {
-        int triangleIndex  = i * 3;
-        
+        int triangleIndex = i * 3;
+
         simd_float3 *normals = calloc(sizeof(simd_float3), 6);
-    
+
         _triangles[triangleIndex].normal     = normal;
         _triangles[triangleIndex + 1].normal = normal;
         _triangles[triangleIndex + 2].normal = normal;
