@@ -49,7 +49,7 @@ static const size_t kAlignedUniformsSize = (sizeof(Uniforms) & ~0xFF) + 0x100;
         _inFlightSemaphore = dispatch_semaphore_create(kMaxBuffersInFlight);
         [self _loadMetalWithView:view];
         [self _loadAssets];
-        simd_float4 cameraInitPosition = { -50, -30, -100, 0 };
+        simd_float4 cameraInitPosition = { -50, -20, -100, 0 };
         _camera                        = [[PCDRCamera alloc] initWithPosition:cameraInitPosition];
     }
 
@@ -194,7 +194,7 @@ static const size_t kAlignedUniformsSize = (sizeof(Uniforms) & ~0xFF) + 0x100;
     uniforms->projectionMatrix = _projectionMatrix;
 
     simd_float3 rotationAxis  = { 0, 1, 0 };
-    simd_float4x4 modelMatrix = matrix4x4_rotation(_rotation, rotationAxis); // matrix_identity_float4x4; // matrix4x4_rotation(_rotation, rotationAxis);
+    simd_float4x4 modelMatrix = matrix4x4_rotation(_rotation, rotationAxis);  // matrix_identity_float4x4; // matrix4x4_rotation(_rotation, rotationAxis);
     uniforms->modelMatrix     = modelMatrix;
     uniforms->modelViewMatrix = matrix_multiply([_camera getViewMatrix], modelMatrix);
     uniforms->viewMatrix      = [_camera getViewMatrix];

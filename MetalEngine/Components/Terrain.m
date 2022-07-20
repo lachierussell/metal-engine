@@ -151,7 +151,7 @@
     // Move verticies
     for (int i = 0, l = 0; l <= _length; l++) {
         for (int w = 0; w <= _width; w++, i++) {
-            float noiseAtPosition = fmax([_noiseMap valueAtPosition:simd_make_int2(w, l)], 0); // Between -1 and 1
+            float noiseAtPosition = fmax([_noiseMap valueAtPosition:simd_make_int2(w, l)], 0);  // Between -1 and 1
             if (_falloffMap != NULL) {
                 noiseAtPosition = fmax(fmin(noiseAtPosition - _falloffMap[i], 1), 0);
             }
@@ -176,18 +176,18 @@
     int indexA[6] = {
         vertex - 1,
         vertex - (_width + 1),
+        vertex + _width,
         vertex - _width,
         vertex + 1,
-        vertex + (_width + 1),
-        vertex + _width
+        vertex + (_width + 1)
     };
     int indexB[6] = {
         vertex - (_width + 1),
         vertex - _width,
         vertex + 1,
+        vertex - 1,
         vertex + (_width + 1),
         vertex + _width,
-        vertex - 1,
     };
 
     int numVertex = (_width + 1) * (_length + 1);
@@ -200,9 +200,6 @@
 
             extremity = [self surfaceNormalFromVectorsA:pointA B:center C:pointC];
             //            NSLog(@"Vertex: %d Normal: %f %f %f", i, extremity.x, extremity.y, extremity.z);
-        }
-        if (extremity.x == NAN) {
-            NSLog(@"%f", extremity.x);
         }
         normal += extremity;
     }

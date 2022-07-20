@@ -11,7 +11,9 @@
 
 @end
 
-@implementation AppDelegate
+@implementation AppDelegate {
+    NSView *prefsWindow;
+}
 
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification
 {

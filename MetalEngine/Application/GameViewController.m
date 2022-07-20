@@ -6,17 +6,22 @@
 //
 
 #import "GameViewController.h"
+#import "MetalEngine-Swift.h"
 #import "Renderer.h"
 
 @implementation GameViewController {
     MTKView *_view;
     Renderer *_renderer;
     NSMutableSet<NSNumber *> *_pressedKeys;
+    NSWindowController *_prefsWindow;
 }
 
 - (void)viewDidLoad
 {
     [super viewDidLoad];
+
+    _prefsWindow = [PrefsWindowObjCBridge makePrefsWindow];
+    [_prefsWindow showWindow:self];
 
     _view = (MTKView *)self.view;
 
