@@ -202,7 +202,7 @@ static const size_t kAlignedUniformsSize = (sizeof(Uniforms) & ~0xFF) + 0x100;
     uniforms->normalMatrix    = simd_transpose(normals);
 
     int evolve = _time * 100;
-    if (evolve % 2 == 0 && !_falloff) {
+    if (evolve % 2 == 0 && !_falloff || false) {
         [_mesh growMesh];
     }
 

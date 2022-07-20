@@ -34,13 +34,13 @@ typedef struct
 
 float3 surface(float height, float3 normal)
 {
-    float3 horizon = float3(0, 1, 0);
-    float angle    = dot(normalize(normal), normalize(horizon));
+    float3 vertical = float3(0, 1, 0);
+    float angle    = dot(normalize(normal), normalize(vertical));  // 0 if face is on it's edge
 
     float3 color = float3(1.0, 1.0, 1.0);
 
     if (height < 10) {
-        if (height == 0) {
+        if (height < 0.1) {
             color = float3(0, 0.4, 0.8); // Blue
         } else if (angle > 0.7) { // 30 degrees in Rad
             color = float3(0.21, 0.45, 0.2); // Green
@@ -67,8 +67,8 @@ vertex ColorInOut vertexShader(
     out.viewPosition   = modelViewPosition.xyz / modelViewPosition.w;
     out.globalPosition = modelPosition.xyz / modelPosition.w;
     out.modelPosition  = in.position;
-    out.normal         = normalVector.xyz;
-    out.color          = surface(in.position.y, in.normal);
+    out.normal         = normalize(normalVector.xyz);
+    out.color          = normalize(in.normal);
 
     out.bypass = float4(out.normal, 1.0);
 
@@ -79,7 +79,8 @@ fragment float4 fragmentShader(
     ColorInOut in [[stage_in]],
     constant Uniforms &uniforms [[buffer(BufferIndexUniforms)]])
 {
-    const float3 inColor = in.color;
+    float3 inColor = surface(in.modelPosition.y, in.color);
+//    inColor = in.color;
 
     // Light attributes
     const float4 light4Position = uniforms.viewMatrix * float4(1000, 1000, 50, 1.0);
@@ -101,7 +102,7 @@ fragment float4 fragmentShader(
     lightDirection        = normalize(lightDirection);
 
     float lamertian = max(dot(lightDirection, normal), 0.0);
-    float specular  = 0.0;
+    float specular  = 0;
 
     if (lamertian > 0.0) {
         float3 viewDirection = normalize(-in.viewPosition);

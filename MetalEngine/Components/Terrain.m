@@ -9,7 +9,7 @@
 #import <float.h>
 
 @implementation Terrain : NSObject {
-    simd_float3 *_verticies;
+    simd_float3 *_vertices;
     VERTEX *_triangles;
     int _width;
     int _length;
@@ -52,7 +52,7 @@
     _width     = width;
     _length    = length;
     _device    = device;
-    _verticies = calloc((width + 1) * (length + 1), sizeof(simd_float3));
+    _vertices = calloc((width + 1) * (length + 1), sizeof(simd_float3));
     _triangles = calloc(width * length * 6, sizeof(VERTEX));
 
     [self createBlankMesh];
@@ -83,7 +83,7 @@
     // Create Verticies
     for (int i = 0, l = 0; l <= _length; l++) {
         for (int w = 0; w <= _width; w++, i++) {
-            _verticies[i] = simd_make_float3(w, 0, l);
+            _vertices[i] = simd_make_float3(w, 0, l);
         }
     }
 }
@@ -93,18 +93,29 @@
     // Create Triangles
     for (int ti = 0, vi = 0, l = 0; l < _length; l++, vi++) {
         for (int w = 0; w < _width; w++, ti += 6, vi++) {
-            simd_float3 normal = [self calculateNormalAt:vi];
-
-            _triangles[ti].position     = _verticies[vi];
-            _triangles[ti + 1].position = _verticies[vi + _width + 1];
-            _triangles[ti + 2].position = _verticies[vi + 1];
-            _triangles[ti + 3].position = _verticies[vi + 1];
-            _triangles[ti + 4].position = _verticies[vi + _width + 1];
-            _triangles[ti + 5].position = _verticies[vi + _width + 2];
+        
+            _triangles[ti]    =
+                (VERTEX){
+                    .position = _vertices[vi],
+                    .normal = [self calculateNormalAt:vi]
+                };
+            _triangles[ti + 1] = _triangles[ti + 4] =
+                (VERTEX){
+                    .position = _vertices[vi + _width + 1],
+                    .normal = [self calculateNormalAt:vi + _width + 1]
+                };
+            _triangles[ti + 2] = _triangles[ti + 3] =
+                (VERTEX){
+                    .position = _vertices[vi + 1],
+                    .normal = [self calculateNormalAt:vi + + 1]
+                };
+            _triangles[ti + 5] =
+                (VERTEX){
+                    .position = _vertices[vi + _width + 2],
+                    .normal = [self calculateNormalAt:vi + _width + 2]
+                };
         }
     }
-
-    [self calculateNormals];
 }
 
 - (float *)generateFalloffMapWithWidth:(float)width length:(float)length
@@ -149,7 +160,7 @@
                 noiseAtPosition = fmax(fmin(noiseAtPosition - _falloffMap[i], 1), 0);
             }
             noiseAtPosition *= 20;
-            _verticies[i] = (simd_float3) { w, noiseAtPosition, l };
+            _vertices[i] = (simd_float3) { w, noiseAtPosition, l };
         }
     }
 
@@ -161,8 +172,46 @@
 
 - (simd_float3)calculateNormalAt:(int)vertex
 {
-
-    return simd_make_float3(0, 0, 0);
+    simd_float3 center       = _vertices[vertex];
+    simd_float3 normal = simd_make_float3(0, 0, 0);
+    
+    int neighbours = 6;
+    
+    int indexA[6] = {
+        vertex - 1,
+        vertex - (_width + 1),
+        vertex - _width,
+        vertex + 1,
+        vertex + (_width + 1),
+        vertex + _width
+    };
+    int indexB[6] = {
+        vertex - (_width + 1),
+        vertex - _width,
+        vertex + 1,
+        vertex + (_width + 1),
+        vertex + _width,
+        vertex - 1,
+    };
+    
+    int numVertex = (_width + 1) * (_length + 1);
+    
+    for (int i = 0; i < neighbours; i++) {
+        simd_float3 extremity = simd_make_float3(0, 0, 0);
+        if (indexA[i] > 0 && indexA[i] < numVertex && indexB[i] > 0 && indexB[i] < numVertex) {
+            simd_float3 pointA = _vertices[indexA[i]];
+            simd_float3 pointC = _vertices[indexB[i]];
+            
+            extremity = [self surfaceNormalFromVectorsA:pointA B:center C:pointC];
+//            NSLog(@"Vertex: %d Normal: %f %f %f", i, extremity.x, extremity.y, extremity.z);
+        }
+        if (extremity.x == NAN) {
+            NSLog(@"%f", extremity.x);
+        }
+        normal += extremity;
+    }
+    
+    return normal;
 }
 
 - (void)calculateNormals
