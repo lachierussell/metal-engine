@@ -37,12 +37,14 @@ static const size_t kAlignedUniformsSize = (sizeof(Uniforms) & ~0xFF) + 0x100;
     float _rotation;
     float _time;
     long int _verticies_count;
+    bool _falloff;
 }
 
 - (nonnull instancetype)initWithMetalKitView:(nonnull MTKView *)view;
 {
     self = [super init];
     if (self) {
+        _falloff = true;
         _device            = view.device;
         _inFlightSemaphore = dispatch_semaphore_create(kMaxBuffersInFlight);
         [self _loadMetalWithView:view];
@@ -122,10 +124,17 @@ static const size_t kAlignedUniformsSize = (sizeof(Uniforms) & ~0xFF) + 0x100;
     //    MDLMesh *mdlMesh = [self createLandscapeWithWidth:1
     //                                               length:1
     //                                            allocator:metalAllocator];
-    //
-    _mesh = [[Terrain alloc] initWithDevice:_device
-                                      width:100
-                                     length:100];
+
+    if (_falloff) {
+        _mesh = [[Terrain alloc] initFalloffWithDevice:_device
+                                                 width:200
+                                                length:200];
+    } else {
+        _mesh = [[Terrain alloc] initWithDevice:_device
+                                          width:100
+                                         length:100];
+    }
+    
     //
     //    [self createLandscapeWithWidth:100
     //                            length:100
@@ -165,63 +174,6 @@ static const size_t kAlignedUniformsSize = (sizeof(Uniforms) & ~0xFF) + 0x100;
     //    }
 }
 
-- (void)createLandscapeWithWidth:(int)width length:(int)length buffer:(id<MTLBuffer>)buffer
-{
-
-    simd_float3 verticies[(width + 1) * (length + 1)];
-    _verticies_count = width * length * 6;
-    uint16 indicies[_verticies_count];
-    simd_float3 triangles[_verticies_count];
-
-    printf("vector_float3 size %lu\n", sizeof(simd_float3));
-    printf("Verticies %lu\n", sizeof(verticies));
-    printf("Indexes %lu\n", sizeof(indicies));
-
-    GKPerlinNoiseSource *perlinNoise = [[GKPerlinNoiseSource alloc] initWithFrequency:0.05
-                                                                          octaveCount:8
-                                                                          persistence:0.4
-                                                                           lacunarity:1.8
-                                                                                 seed:5];
-
-    assert(perlinNoise != NULL);
-    GKNoise *noise = [[GKNoise alloc] initWithNoiseSource:perlinNoise];
-
-    GKNoiseMap *noiseMap = [[GKNoiseMap alloc] initWithNoise:noise
-                                                        size:simd_make_double2(width, length)
-                                                      origin:simd_make_double2(0, 0)
-                                                 sampleCount:simd_make_int2(width, length)
-                                                    seamless:true];
-
-    // Create Verticies
-    for (int i = 0, l = 0; l <= length; l++) {
-        for (int w = 0; w <= width; w++, i++) {
-            float noiseAtPosition = [noiseMap valueAtPosition:simd_make_int2(w, l)];
-            verticies[i]          = (simd_float3) { w, ((noiseAtPosition + 1) / 2) * 20, l }; // noiseAtPosition between -1 and 1. Scale to 0-255
-            //            NSLog(@"vector = %f", verticies[i][2]);
-        }
-    }
-
-    // Create Triangles
-    for (int ti = 0, vi = 0, l = 0; l < length; l++, vi++) {
-        for (int w = 0; w < width; w++, ti += 6, vi++) {
-            triangles[ti]     = verticies[vi];
-            triangles[ti + 1] = verticies[vi + width + 1];
-            triangles[ti + 2] = verticies[vi + 1];
-            triangles[ti + 3] = verticies[vi + 1];
-            triangles[ti + 4] = verticies[vi + width + 1];
-            triangles[ti + 5] = verticies[vi + width + 2];
-        }
-    }
-
-    for (int i = 0; i < _verticies_count; i++) {
-        //        NSLog(@"triangle %f %f %f", triangles[i][0], triangles[i][1], triangles[i][2]);
-    }
-
-    _mesh = [_device newBufferWithBytes:triangles
-                                 length:sizeof(triangles)
-                                options:MTLResourceOptionCPUCacheModeDefault];
-}
-
 - (void)_updateDynamicBufferState
 {
     /// Update the state of our uniform buffers before rendering
@@ -249,12 +201,13 @@ static const size_t kAlignedUniformsSize = (sizeof(Uniforms) & ~0xFF) + 0x100;
     simd_float3x3 normals     = { modelMatrix.columns[0].xyz, modelMatrix.columns[1].xyz, modelMatrix.columns[2].xyz };
     uniforms->normalMatrix    = simd_transpose(normals);
 
-    //    if (_time % 5 == 0 || true) {
-    //        [_mesh evolveMesh];
-    //    }
+    int evolve = _time * 100;
+    if (evolve % 2 == 0 && !_falloff) {
+        [_mesh growMesh];
+    }
 
-    _time     = 0.01;
-    _rotation = _time;
+    _time    += 0.01;
+//    _rotation = _time;
 }
 
 - (void)drawInMTKView:(nonnull MTKView *)view

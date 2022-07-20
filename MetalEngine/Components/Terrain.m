@@ -6,6 +6,7 @@
 //
 
 #import "Terrain.h"
+#import <float.h>
 
 @implementation Terrain : NSObject {
     simd_float3 *_verticies;
@@ -18,43 +19,63 @@
 
     GKNoise *_noise;
     GKNoiseMap *_noiseMap;
+    float* _falloffMap;
 }
 
 - (instancetype)initWithDevice:(id<MTLDevice>)device width:(int)width length:(int)length
 {
     self = [super init];
     if (self) {
-        _iteration = 0;
-        _width     = width;
-        _length    = length;
-        _device    = device;
-        _verticies = calloc((width + 1) * (length + 1), sizeof(simd_float3));
-        _triangles = calloc(width * length * 6, sizeof(VERTEX));
-
-        [self createBlankMesh];
-        [self tesalate];
-
-        _mesh = [_device newBufferWithBytes:_triangles
-                                     length:_width * _length * 6 * sizeof(VERTEX)
-                                    options:MTLResourceOptionCPUCacheModeDefault];
-
-        GKPerlinNoiseSource *perlinNoise = [[GKPerlinNoiseSource alloc] initWithFrequency:0.03
-                                                                              octaveCount:8
-                                                                              persistence:0.4
-                                                                               lacunarity:1.8
-                                                                                     seed:5];
-
-        _noiseMap = [[GKNoiseMap alloc] initWithNoise:_noise
-                                                 size:simd_make_double2(_width, _length)
-                                               origin:simd_make_double2(0, 0)
-                                          sampleCount:simd_make_int2(_width, _length)
-                                             seamless:true];
-
-        assert(perlinNoise != NULL);
-        _noise = [[GKNoise alloc] initWithNoiseSource:perlinNoise];
-        [self evolveMesh];
+        [self initHelperWithDevice:device width:width length:length];
+        [self growMesh];
     }
     return self;
+}
+
+- (instancetype)initFalloffWithDevice:(id<MTLDevice>)device width:(int)width length:(int)length
+{
+    self = [super init];
+    if (self) {
+        [self initHelperWithDevice:device
+                             width:width
+                            length:length];
+        _falloffMap = [self generateFalloffMapWithWidth:width
+                                                 length:length];
+        [self growMesh];
+    }
+    return self;
+}
+
+- (void)initHelperWithDevice:(id<MTLDevice>)device width:(int)width length:(int)length
+{
+    _iteration = 0;
+    _width     = width;
+    _length    = length;
+    _device    = device;
+    _verticies = calloc((width + 1) * (length + 1), sizeof(simd_float3));
+    _triangles = calloc(width * length * 6, sizeof(VERTEX));
+
+    [self createBlankMesh];
+    [self tesalate];
+
+    _mesh = [_device newBufferWithBytes:_triangles
+                                 length:_width * _length * 6 * sizeof(VERTEX)
+                                options:MTLResourceOptionCPUCacheModeDefault];
+
+    GKPerlinNoiseSource *perlinNoise = [[GKPerlinNoiseSource alloc] initWithFrequency:0.04
+                                                                          octaveCount:5
+                                                                          persistence:0.4
+                                                                           lacunarity:1.9
+                                                                                 seed:2];
+
+    _noiseMap = [[GKNoiseMap alloc] initWithNoise:_noise
+                                             size:simd_make_double2(_width, _length)
+                                           origin:simd_make_double2(0, 0)
+                                      sampleCount:simd_make_int2(_width, _length)
+                                         seamless:true];
+    
+    assert(perlinNoise != NULL);
+    _noise = [[GKNoise alloc] initWithNoiseSource:perlinNoise];
 }
 
 - (void)createBlankMesh
@@ -72,6 +93,8 @@
     // Create Triangles
     for (int ti = 0, vi = 0, l = 0; l < _length; l++, vi++) {
         for (int w = 0; w < _width; w++, ti += 6, vi++) {
+            simd_float3 normal = [self calculateNormalAt: vi];
+            
             _triangles[ti].position     = _verticies[vi];
             _triangles[ti + 1].position = _verticies[vi + _width + 1];
             _triangles[ti + 2].position = _verticies[vi + 1];
@@ -84,7 +107,32 @@
     [self calculateNormals];
 }
 
-- (void)evolveMesh
+- (float*)generateFalloffMapWithWidth:(float)width length:(float)length
+{
+    float* falloffMap = calloc(width * length, sizeof(float));
+    
+    for (int i = 0, l = 0; l <= length; l++) {
+        for (int w = 0; w <= width; w++, i++) {
+            float x = fabs(2 * l / (float)_length - 1);
+            float y = fabs(2 * w / (float)_width - 1);
+            
+            float value = fmax(x, y);
+            
+            falloffMap[i] = fmin(fmax([Terrain evaluateFalloff:value], 0), 1);
+        }
+    }
+    return falloffMap;
+}
+
++ (float)evaluateFalloff:(float)value
+{
+    float a = 3;
+    float b = 2.2;
+    
+    return pow(value, a) / (pow(value, a) + pow(b - b * value, a));
+}
+
+- (void)growMesh
 {
     [self createBlankMesh];
     _noiseMap = [GKNoiseMap noiseMapWithNoise:_noise
@@ -92,17 +140,16 @@
                                        origin:simd_make_double2(_iteration, _iteration)
                                   sampleCount:simd_make_int2(_width, _length)
                                      seamless:true];
-
+    
     // Move verticies
     for (int i = 0, l = 0; l <= _length; l++) {
         for (int w = 0; w <= _width; w++, i++) {
-            if (w % _width == 0 || l % _length == 0) {
-                _verticies[i] = (simd_float3) { w, 0, l };
-            } else {
-                float noiseAtPosition = [_noiseMap valueAtPosition:simd_make_int2(w, l)]; // Between -1 and 1
-                _verticies[i]         = (simd_float3) { w, ((noiseAtPosition + 1.0) / 2.0) * 20.0, l };
+            float noiseAtPosition = fmax([_noiseMap valueAtPosition:simd_make_int2(w, l)], 0); // Between -1 and 1
+            if (_falloffMap != NULL) {
+                noiseAtPosition = fmax(fmin(noiseAtPosition - _falloffMap[i], 1), 0);
             }
-            //            _verticies[i] = (simd_float3) { w, 0, l };
+            noiseAtPosition *= 20;
+            _verticies[i]    = (simd_float3) { w, noiseAtPosition, l };
         }
     }
 
@@ -112,6 +159,13 @@
     [self updateBuffer];
 }
 
+- (simd_float3)calculateNormalAt:(int)vertex
+{
+    
+    
+    return simd_make_float3(0, 0, 0);
+}
+
 - (void)calculateNormals
 {
     int triangleCount = [self getVerticies] / 3;
@@ -119,8 +173,9 @@
 
     for (int i = 0; i < triangleCount; i++) {
         int triangleIndex  = i * 3;
-        simd_float3 normal = [self surfaceNormalFromTriangle:triangleIndex];
-
+        
+        simd_float3 *normals = calloc(sizeof(simd_float3), 6);
+    
         _triangles[triangleIndex].normal     = normal;
         _triangles[triangleIndex + 1].normal = normal;
         _triangles[triangleIndex + 2].normal = normal;

@@ -14,9 +14,10 @@
 @interface Terrain : NSObject
 
 - (instancetype)initWithDevice:(id<MTLDevice>)device width:(int)width length:(int)length;
+- (instancetype)initFalloffWithDevice:(id<MTLDevice>)device width:(int)width length:(int)length;
 - (void)createBlankMesh;
 - (void)tesalate;
-- (void)evolveMesh;
+- (void)growMesh;
 - (void)updateBuffer;
 - (id<MTLBuffer>)getMesh;
 - (int)getVerticies;
