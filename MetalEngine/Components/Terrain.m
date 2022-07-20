@@ -52,7 +52,7 @@
     _width     = width;
     _length    = length;
     _device    = device;
-    _vertices = calloc((width + 1) * (length + 1), sizeof(simd_float3));
+    _vertices  = calloc((width + 1) * (length + 1), sizeof(simd_float3));
     _triangles = calloc(width * length * 6, sizeof(VERTEX));
 
     [self createBlankMesh];
@@ -93,27 +93,23 @@
     // Create Triangles
     for (int ti = 0, vi = 0, l = 0; l < _length; l++, vi++) {
         for (int w = 0; w < _width; w++, ti += 6, vi++) {
-        
-            _triangles[ti]    =
-                (VERTEX){
-                    .position = _vertices[vi],
-                    .normal = [self calculateNormalAt:vi]
-                };
-            _triangles[ti + 1] = _triangles[ti + 4] =
-                (VERTEX){
-                    .position = _vertices[vi + _width + 1],
-                    .normal = [self calculateNormalAt:vi + _width + 1]
-                };
-            _triangles[ti + 2] = _triangles[ti + 3] =
-                (VERTEX){
-                    .position = _vertices[vi + 1],
-                    .normal = [self calculateNormalAt:vi + + 1]
-                };
-            _triangles[ti + 5] =
-                (VERTEX){
-                    .position = _vertices[vi + _width + 2],
-                    .normal = [self calculateNormalAt:vi + _width + 2]
-                };
+
+            _triangles[ti] = (VERTEX) {
+                .position = _vertices[vi],
+                .normal   = [self calculateNormalAt:vi]
+            };
+            _triangles[ti + 1] = _triangles[ti + 4] = (VERTEX) {
+                .position = _vertices[vi + _width + 1],
+                .normal   = [self calculateNormalAt:vi + _width + 1]
+            };
+            _triangles[ti + 2] = _triangles[ti + 3] = (VERTEX) {
+                .position = _vertices[vi + 1],
+                .normal   = [self calculateNormalAt:vi + +1]
+            };
+            _triangles[ti + 5] = (VERTEX) {
+                .position = _vertices[vi + _width + 2],
+                .normal   = [self calculateNormalAt:vi + _width + 2]
+            };
         }
     }
 }
@@ -172,11 +168,11 @@
 
 - (simd_float3)calculateNormalAt:(int)vertex
 {
-    simd_float3 center       = _vertices[vertex];
+    simd_float3 center = _vertices[vertex];
     simd_float3 normal = simd_make_float3(0, 0, 0);
-    
+
     int neighbours = 6;
-    
+
     int indexA[6] = {
         vertex - 1,
         vertex - (_width + 1),
@@ -193,24 +189,24 @@
         vertex + _width,
         vertex - 1,
     };
-    
+
     int numVertex = (_width + 1) * (_length + 1);
-    
+
     for (int i = 0; i < neighbours; i++) {
         simd_float3 extremity = simd_make_float3(0, 0, 0);
         if (indexA[i] > 0 && indexA[i] < numVertex && indexB[i] > 0 && indexB[i] < numVertex) {
             simd_float3 pointA = _vertices[indexA[i]];
             simd_float3 pointC = _vertices[indexB[i]];
-            
+
             extremity = [self surfaceNormalFromVectorsA:pointA B:center C:pointC];
-//            NSLog(@"Vertex: %d Normal: %f %f %f", i, extremity.x, extremity.y, extremity.z);
+            //            NSLog(@"Vertex: %d Normal: %f %f %f", i, extremity.x, extremity.y, extremity.z);
         }
         if (extremity.x == NAN) {
             NSLog(@"%f", extremity.x);
         }
         normal += extremity;
     }
-    
+
     return normal;
 }
 

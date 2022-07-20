@@ -35,7 +35,7 @@ typedef struct
 float3 surface(float height, float3 normal)
 {
     float3 vertical = float3(0, 1, 0);
-    float angle    = dot(normalize(normal), normalize(vertical));  // 0 if face is on it's edge
+    float angle     = dot(normalize(normal), normalize(vertical)); // 0 if face is on it's edge
 
     float3 color = float3(1.0, 1.0, 1.0);
 
@@ -80,7 +80,7 @@ fragment float4 fragmentShader(
     constant Uniforms &uniforms [[buffer(BufferIndexUniforms)]])
 {
     float3 inColor = surface(in.modelPosition.y, in.color);
-//    inColor = in.color;
+    //    inColor = in.color;
 
     // Light attributes
     const float4 light4Position = uniforms.viewMatrix * float4(1000, 1000, 50, 1.0);
