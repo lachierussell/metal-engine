@@ -49,7 +49,7 @@ static const size_t kAlignedUniformsSize = (sizeof(Uniforms) & ~0xFF) + 0x100;
         _inFlightSemaphore = dispatch_semaphore_create(kMaxBuffersInFlight);
         [self _loadMetalWithView:view];
         [self _loadAssets];
-        simd_float4 cameraInitPosition = { -50, -20, -100, 0 };
+        simd_float4 cameraInitPosition = { -50, -10, -100, 0 };
         _camera                        = [[PCDRCamera alloc] initWithPosition:cameraInitPosition];
     }
 
@@ -127,8 +127,8 @@ static const size_t kAlignedUniformsSize = (sizeof(Uniforms) & ~0xFF) + 0x100;
 
     if (_falloff) {
         _mesh = [[Terrain alloc] initFalloffWithDevice:_device
-                                                 width:200
-                                                length:200];
+                                                 width:300
+                                                length:300];
     } else {
         _mesh = [[Terrain alloc] initWithDevice:_device
                                           width:100
@@ -194,7 +194,7 @@ static const size_t kAlignedUniformsSize = (sizeof(Uniforms) & ~0xFF) + 0x100;
     uniforms->projectionMatrix = _projectionMatrix;
 
     simd_float3 rotationAxis  = { 0, 1, 0 };
-    simd_float4x4 modelMatrix = matrix4x4_rotation(_rotation, rotationAxis);  // matrix_identity_float4x4; // matrix4x4_rotation(_rotation, rotationAxis);
+    simd_float4x4 modelMatrix = matrix_identity_float4x4;  // matrix4x4_rotation(_rotation, rotationAxis);  // matrix_identity_float4x4; // matrix4x4_rotation(_rotation, rotationAxis);
     uniforms->modelMatrix     = modelMatrix;
     uniforms->modelViewMatrix = matrix_multiply([_camera getViewMatrix], modelMatrix);
     uniforms->viewMatrix      = [_camera getViewMatrix];
@@ -245,7 +245,7 @@ static const size_t kAlignedUniformsSize = (sizeof(Uniforms) & ~0xFF) + 0x100;
         [renderEncoder setFrontFacingWinding:MTLWindingCounterClockwise];
         [renderEncoder setCullMode:MTLCullModeBack];
         [renderEncoder setRenderPipelineState:_pipelineState];
-        //        [renderEncoder setDepthStencilState:_depthState];
+        //                [renderEncoder setDepthStencilState:_depthState];
 
         [renderEncoder setVertexBuffer:_dynamicUniformBuffer
                                 offset:_uniformBufferOffset
@@ -296,7 +296,6 @@ static const size_t kAlignedUniformsSize = (sizeof(Uniforms) & ~0xFF) + 0x100;
 - (void)mtkView:(nonnull MTKView *)view drawableSizeWillChange:(CGSize)size
 {
     /// Respond to drawable size or orientation changes here
-
     float aspect      = size.width / (float)size.height;
     _projectionMatrix = matrix_perspective_right_hand(65.0f * (M_PI / 180.0f), aspect, 0.1f, 300.0f);
 }

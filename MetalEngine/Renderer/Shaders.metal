@@ -70,10 +70,9 @@ vertex ColorInOut vertexShader(
     out.globalPosition = modelPosition.xyz / modelPosition.w;
     out.modelPosition  = in.position;
     out.normal         = normalize(normalVector.xyz);
-    out.color          = normalize(in.normal);
+    out.color          = surface(in.position.y, in.normal);
 
-    out.bypass = float4(out.color, 0.0);
-
+    out.bypass = float4(in.normal, 0.0);
     return out;
 }
 
@@ -94,8 +93,8 @@ fragment float4 fragmentShader(
     // Object attributes
     const float shininess      = 5;
     const float3 specularColor = 1.0 * inColor;
-    const float3 diffuseColor  = 1.0 * inColor;
-    const float3 ambientColor  = 0.5 * inColor;
+    const float3 diffuseColor  = 0.7 * inColor;
+    const float3 ambientColor  = 0.7 * inColor;
 
     float3 normal         = normalize(in.normal);  // Need to normalize interpolated normals
     float3 lightDirection = lightPosition - in.viewPosition;
@@ -103,7 +102,7 @@ fragment float4 fragmentShader(
     lightDistance         = pow(lightDistance, 0);
     lightDirection        = normalize(lightDirection);
 
-    float lamertian = max(dot(lightDirection, normal), 0.0);
+    float lamertian = saturate(dot(lightDirection, normal));
     float specular  = 0;
 
     if (lamertian > 0.0) {
@@ -111,7 +110,7 @@ fragment float4 fragmentShader(
 
         if (true) {  // Phong
             float3 reflectionVec = reflect(-lightDirection, normal);
-            float specularAngle  = max(dot(reflectionVec, viewDirection), 0.0);
+            float specularAngle  = saturate(dot(reflectionVec, viewDirection));
             specular             = pow(specularAngle, shininess / 4.0);
         } else {  // Blinn
             float3 halfway      = normalize(lightDirection + viewDirection);
@@ -124,6 +123,12 @@ fragment float4 fragmentShader(
         + diffuseColor * lamertian * lightColor * lightPower / lightDistance
         + specularColor * specular * lightColor * lightPower / lightDistance;
 
-    return in.bypass;
-    return float4(colorLinear, 1.0);
+    // apply gamma correction (assume ambientColor, diffuseColor and specColor
+    // have been linearized, i.e. have no gamma correction in them)
+    float screenGamma          = 1.8;
+    float3 colorGammaCorrected = pow(colorLinear, float3(1.0 / screenGamma));
+    // use the gamma corrected color in the fragment
+
+    //    return normalize(in.bypass);
+    return float4(colorGammaCorrected, 1.0);
 }
