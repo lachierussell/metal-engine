@@ -21,6 +21,7 @@ static const size_t kAlignedUniformsSize = (sizeof(Uniforms) & ~0xFF) + 0x100;
     id<MTLRenderPipelineState> _pipelineState;
     id<MTLDepthStencilState> _depthState;
     id<MTLTexture> _colorMap;
+    MTKView *_view;
     MTLVertexDescriptor *_mtlVertexDescriptor;
 
     uint32_t _uniformBufferOffset;
@@ -46,6 +47,7 @@ static const size_t kAlignedUniformsSize = (sizeof(Uniforms) & ~0xFF) + 0x100;
     if (self) {
         _falloff           = true;
         _device            = view.device;
+        _view              = view;
         _inFlightSemaphore = dispatch_semaphore_create(kMaxBuffersInFlight);
         [self _loadMetalWithView:view];
         [self _loadAssets];
@@ -83,12 +85,19 @@ static const size_t kAlignedUniformsSize = (sizeof(Uniforms) & ~0xFF) + 0x100;
     id<MTLFunction> vertexFunction   = [defaultLibrary newFunctionWithName:@"vertexShader"];
     id<MTLFunction> fragmentFunction = [defaultLibrary newFunctionWithName:@"fragmentShader"];
 
+    view.depthStencilPixelFormat                            = MTLPixelFormatDepth32Float;
     MTLRenderPipelineDescriptor *pipelineStateDescriptor    = [[MTLRenderPipelineDescriptor alloc] init];
     pipelineStateDescriptor.label                           = @"MyPipeline";
     pipelineStateDescriptor.vertexFunction                  = vertexFunction;
     pipelineStateDescriptor.fragmentFunction                = fragmentFunction;
     pipelineStateDescriptor.vertexDescriptor                = _mtlVertexDescriptor;
     pipelineStateDescriptor.colorAttachments[0].pixelFormat = view.colorPixelFormat;
+    pipelineStateDescriptor.depthAttachmentPixelFormat      = view.depthStencilPixelFormat;
+
+    MTLDepthStencilDescriptor *depthDescriptor = [MTLDepthStencilDescriptor new];
+    depthDescriptor.depthCompareFunction       = MTLCompareFunctionLessEqual;
+    depthDescriptor.depthWriteEnabled          = YES;
+    _depthState                                = [_device newDepthStencilStateWithDescriptor:depthDescriptor];
 
     NSError *error = NULL;
     _pipelineState = [_device newRenderPipelineStateWithDescriptor:pipelineStateDescriptor
@@ -245,7 +254,9 @@ static const size_t kAlignedUniformsSize = (sizeof(Uniforms) & ~0xFF) + 0x100;
         [renderEncoder setFrontFacingWinding:MTLWindingCounterClockwise];
         [renderEncoder setCullMode:MTLCullModeBack];
         [renderEncoder setRenderPipelineState:_pipelineState];
-        //                [renderEncoder setDepthStencilState:_depthState];
+
+        _view.clearDepth = 1.0;
+        [renderEncoder setDepthStencilState:_depthState];
 
         [renderEncoder setVertexBuffer:_dynamicUniformBuffer
                                 offset:_uniformBufferOffset

@@ -62,13 +62,7 @@
                                  length:(_width + 1) * (_length + 1) * 6 * sizeof(VERTEX)
                                 options:MTLResourceOptionCPUCacheModeDefault];
 
-    //    GKPerlinNoiseSource *perlinNoise = [[GKPerlinNoiseSource alloc] initWithFrequency:0.04
-    //                                                                          octaveCount:4
-    //                                                                          persistence:0.4
-    //                                                                           lacunarity:2
-    //                                                                                 seed:2];
-
-    GKPerlinNoiseSource *perlinNoise = [[GKPerlinNoiseSource alloc] initWithFrequency:0.06
+    GKPerlinNoiseSource *perlinNoise = [[GKPerlinNoiseSource alloc] initWithFrequency:0.04
                                                                           octaveCount:4
                                                                           persistence:0.4
                                                                            lacunarity:2
