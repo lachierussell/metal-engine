@@ -114,7 +114,6 @@ fragment float4 fragmentShader(
 
     if (lamertian > 0.0) {
         float3 viewDirection = normalize(-in.viewPosition);
-
         if (true) {  // Phong
             float3 reflectionVec = reflect(-lightDirection, normal);
             float specularAngle  = dot(reflectionVec, viewDirection);
@@ -131,20 +130,14 @@ fragment float4 fragmentShader(
         + specularColor * specular * lightColor * lightPower / lightDistance;
 
     // Add an atmospherics blend; it is absolutely empirical.
-    //    float hazeAmount;
-    //    {
-    //        const float near = 0.992;
-    //        const float far = 1.0;
-    //        const float invFarByNear = 1.0 / (far-near);
-    //        const float approxlinDepth = saturate((depth-near) * invFarByNear);
-    //        hazeAmount = pow(approxlinDepth,10)*0.3;
-    //    }
-    //    const float3 hazeColor = saturate(cubemap.sample(colorSampler, float3(0,1,0)).xyz * 3.0 + 0.1);
-    //    blended = mix(colorLinear, hazeColor, float3(hazeAmount));
+    float hazeAmount       = saturate(pow(length(in.viewPosition), 1.5) / 1000);
+    const float3 hazeColor = float3(1, 1, 1);
+    const float3 blended   = mix(colorLinear, hazeColor, float3(hazeAmount));
 
     // apply gamma correction (assume ambientColor, diffuseColor and specColor
     // have been linearized, i.e. have no gamma correction in them)
-    float screenGamma          = 1.8;
-    float3 colorGammaCorrected = pow(colorLinear, float3(1.0 / screenGamma));
+    float screenGamma = 1.8;
+    //    float3 colorGammaCorrected = pow(colorLinear, float3(1.0 / screenGamma));
+    float3 colorGammaCorrected = pow(blended, float3(1.0 / screenGamma));
     return float4(colorGammaCorrected, 1.0);
 }

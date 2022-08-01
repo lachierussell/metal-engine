@@ -83,7 +83,7 @@
     // Create Verticies
     for (int i = 0, l = 0; l <= _length; l++) {
         for (int w = 0; w <= _width; w++, i++) {
-            _vertices[i] = simd_make_float3(w, 0, l);
+            _vertices[i] = simd_make_float3((float)w / 2.0, 0, (float)l / 2.0);
         }
     }
 }
@@ -163,7 +163,7 @@
                 noiseAtPosition = fmax(fmin(noiseAtPosition - _falloffMap[i], 1), 0);
             }
             noiseAtPosition *= 10;
-            _vertices[i] = (simd_float3) { w, noiseAtPosition, l };
+            _vertices[i].y = noiseAtPosition / 2.0;
         }
     }
 

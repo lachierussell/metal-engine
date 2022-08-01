@@ -53,7 +53,7 @@
 {
     simd_float4x4 translation;
     float rotateSpeed    = 0.05;
-    float translateSpeed = 5;
+    float translateSpeed = 5 / 3;
 
     switch (event.keyCode) {
     case 125:
@@ -95,6 +95,18 @@
         // NSLog(@"Move right");
         translation  = matrix4x4_translation(-translateSpeed, 0, 0);
         translation  = rotateTranslation([self getHorizontalRotation], translation);
+        _translation = matrix_multiply(translation, _translation);
+        break;
+    case 12:
+        // NSLog(@"Move down");
+        translation = matrix4x4_translation(0, translateSpeed / 4, 0);
+        //        translation  = rotateTranslation([self getHorizontalRotation], translation);
+        _translation = matrix_multiply(translation, _translation);
+        break;
+    case 14:
+        // NSLog(@"Move up");
+        translation = matrix4x4_translation(0, -translateSpeed / 4, 0);
+        //        translation  = rotateTranslation([self getHorizontalRotation], translation);
         _translation = matrix_multiply(translation, _translation);
         break;
     default:
