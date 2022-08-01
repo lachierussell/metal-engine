@@ -84,26 +84,27 @@ fragment float4 fragmentShader(
     //    inColor = in.color;
 
     // Light attributes
-    const float4 light4Position = uniforms.viewMatrix * float4(20, 20, 20, 1.0);
-
-    const float3 lightPosition = light4Position.xyz;  // Global position
-    const float3 lightColor    = float3(1.0, 1.0, 1.0);
-    const float lightPower     = 100;
+    const float4 light4Position = uniforms.viewMatrix * float4(150, 50, 100, 1.0);
+    const float3 lightPosition  = light4Position.xyz;  // Global position
+    const float3 lightColor     = float3(1.0, 1.0, 1.0);
+    const float lightPower      = 100;
 
     // Object attributes
-    float shininess = 25;
-    //    if (inColor.r == 0) {
-    //        shininess = 25;
-    //        in.normal.y = in.normal.y * saturate(sin(in.viewPosition.y));
+    float shininess = 5;
+    if (inColor.r == 0) {
+        shininess = 35;
+    }
+    //        in.normal.x = sin(in.globalPosition.x);
+    //        in.normal.z = sin(in.globalPosition.z);
     //        in.normal = normalize(in.normal);
     //    }
 
     const float3 specularColor = 0.6 * inColor;
-    const float3 diffuseColor  = 0.0 * inColor;
-    const float3 ambientColor  = 0.0 * inColor;
+    const float3 diffuseColor  = 0.6 * inColor;
+    const float3 ambientColor  = 0.3 * inColor;
 
     float3 normal         = normalize(in.normal);  // Need to normalize interpolated normals
-    float3 lightDirection = lightPosition - in.globalPosition;
+    float3 lightDirection = lightPosition - in.viewPosition;
     float lightDistance   = length(lightDirection);
     lightDistance         = pow(lightDistance, 1);
     lightDirection        = normalize(lightDirection);

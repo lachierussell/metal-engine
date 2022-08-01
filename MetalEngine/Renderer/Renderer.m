@@ -84,6 +84,7 @@ static const size_t kAlignedUniformsSize = (sizeof(Uniforms) & ~0xFF) + 0x100;
     id<MTLLibrary> defaultLibrary    = [_device newDefaultLibrary];
     id<MTLFunction> vertexFunction   = [defaultLibrary newFunctionWithName:@"vertexShader"];
     id<MTLFunction> fragmentFunction = [defaultLibrary newFunctionWithName:@"fragmentShader"];
+    //    id<MTLFunction> edgeDetection    = [defaultLibrary newFunctionWithName:@"edgeDetection"];
 
     view.depthStencilPixelFormat                            = MTLPixelFormatDepth32Float;
     MTLRenderPipelineDescriptor *pipelineStateDescriptor    = [[MTLRenderPipelineDescriptor alloc] init];
@@ -136,8 +137,8 @@ static const size_t kAlignedUniformsSize = (sizeof(Uniforms) & ~0xFF) + 0x100;
 
     if (_falloff) {
         _mesh = [[Terrain alloc] initFalloffWithDevice:_device
-                                                 width:300
-                                                length:300];
+                                                 width:200
+                                                length:200];
     } else {
         _mesh = [[Terrain alloc] initWithDevice:_device
                                           width:100
@@ -211,7 +212,7 @@ static const size_t kAlignedUniformsSize = (sizeof(Uniforms) & ~0xFF) + 0x100;
     uniforms->normalMatrix    = simd_transpose(normals);
 
     int evolve = _time * 100;
-    if (evolve % 2 == 0 && !_falloff || false) {
+    if (false) {
         [_mesh growMesh];
     }
 
