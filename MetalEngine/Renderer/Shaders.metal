@@ -40,9 +40,9 @@ float3 surface(float height, float3 normal)
     float3 color = float3(1.0, 1.0, 1.0);
 
     if (height < 15) {
-        if (height <= 0) {
+        if (height <= 0.03) {
             color = float3(0, 0.4, 0.8);  // Blue
-        } else if (height < 0.2) {
+        } else if (height < 0.08) {
             color = float3(0.89, 0.8, 0.6);  // Sand
         } else if (angle > 0.7) {
             color = float3(0.21, 0.45, 0.2);  // Green
@@ -90,18 +90,20 @@ fragment float4 fragmentShader(
     const float lightPower      = 100;
 
     // Object attributes
-    float shininess = 5;
+    float shininess = 10;
     if (inColor.r == 0) {
-        shininess = 35;
+        shininess  = 35;
+        float wave = saturate(sin(in.position.x / 5));
+        in.color   = mix(in.color, float3(1, 1, 1), float3(wave));
     }
     //        in.normal.x = sin(in.globalPosition.x);
     //        in.normal.z = sin(in.globalPosition.z);
     //        in.normal = normalize(in.normal);
     //    }
 
-    const float3 specularColor = 0.6 * inColor;
-    const float3 diffuseColor  = 0.6 * inColor;
-    const float3 ambientColor  = 0.3 * inColor;
+    const float3 specularColor = 0.8 * inColor;
+    const float3 diffuseColor  = 0.7 * inColor;
+    const float3 ambientColor  = 0.2 * inColor;
 
     float3 normal         = normalize(in.normal);  // Need to normalize interpolated normals
     float3 lightDirection = lightPosition - in.viewPosition;

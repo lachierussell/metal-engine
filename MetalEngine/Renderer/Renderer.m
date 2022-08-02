@@ -51,7 +51,7 @@ static const size_t kAlignedUniformsSize = (sizeof(Uniforms) & ~0xFF) + 0x100;
         _inFlightSemaphore = dispatch_semaphore_create(kMaxBuffersInFlight);
         [self _loadMetalWithView:view];
         [self _loadAssets];
-        simd_float4 cameraInitPosition = { -50, -10, -100, 0 };
+        simd_float4 cameraInitPosition = { -50, -2, -50, 0 };
         _camera                        = [[PCDRCamera alloc] initWithPosition:cameraInitPosition];
     }
 
@@ -137,8 +137,8 @@ static const size_t kAlignedUniformsSize = (sizeof(Uniforms) & ~0xFF) + 0x100;
 
     if (_falloff) {
         _mesh = [[Terrain alloc] initFalloffWithDevice:_device
-                                                 width:200
-                                                length:200];
+                                                 width:250
+                                                length:250];
     } else {
         _mesh = [[Terrain alloc] initWithDevice:_device
                                           width:100
@@ -212,7 +212,7 @@ static const size_t kAlignedUniformsSize = (sizeof(Uniforms) & ~0xFF) + 0x100;
     uniforms->normalMatrix    = simd_transpose(normals);
 
     int evolve = _time * 100;
-    if (false) {
+    if (true) {
         [_mesh growMesh];
     }
 

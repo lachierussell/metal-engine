@@ -16,6 +16,7 @@
     id<MTLBuffer> _mesh;
     id<MTLDevice> _device;
     int _iteration;
+    float _lod;
 
     GKNoise *_noise;
     GKNoiseMap *_noiseMap;
@@ -54,6 +55,7 @@
     _device    = device;
     _vertices  = calloc((width + 1) * (length + 1), sizeof(simd_float3));
     _triangles = calloc((width + 1) * (length + 1) * 6, sizeof(VERTEX));
+    _lod       = 10;
 
     [self createBlankMesh];
     [self tesalate];
@@ -83,7 +85,7 @@
     // Create Verticies
     for (int i = 0, l = 0; l <= _length; l++) {
         for (int w = 0; w <= _width; w++, i++) {
-            _vertices[i] = simd_make_float3((float)w / 2.0, 0, (float)l / 2.0);
+            _vertices[i] = simd_make_float3((float)w / _lod, 0, (float)l / _lod);
         }
     }
 }
@@ -163,7 +165,7 @@
                 noiseAtPosition = fmax(fmin(noiseAtPosition - _falloffMap[i], 1), 0);
             }
             noiseAtPosition *= 10;
-            _vertices[i].y = noiseAtPosition / 2.0;
+            _vertices[i].y = noiseAtPosition / _lod;
         }
     }
 

@@ -77,7 +77,6 @@
         translation  = matrix4x4_translation(0, 0, translateSpeed);
         translation  = rotateTranslation([self getHorizontalRotation], translation);
         _translation = matrix_multiply(translation, _translation);
-
         break;
     case 1:
         // NSLog(@"Move backward");
