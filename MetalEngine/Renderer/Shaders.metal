@@ -28,7 +28,7 @@ typedef struct
     float3 viewPosition;
     float3 globalPosition;
     float3 modelPosition;
-    float3 normal;
+    float3 normal [[flat]];
     float4 bypass;
 } ColorInOut;
 
@@ -70,7 +70,7 @@ vertex ColorInOut vertexShader(
     out.globalPosition = modelPosition.xyz / modelPosition.w;
     out.modelPosition  = in.position;
     out.normal         = normalize(normalVector.xyz);
-    out.color          = surface(in.position.y, in.normal);
+    out.color          = in.normal;
 
     out.bypass = float4(in.normal, 0.0);
     return out;
@@ -80,6 +80,8 @@ fragment float4 fragmentShader(
     ColorInOut in [[stage_in]],
     constant Uniforms &uniforms [[buffer(BufferIndexUniforms)]])
 {
+    
+    return in.bypass;
     float3 inColor = surface(in.modelPosition.y, in.color);
     //    inColor = in.color;
 
@@ -92,7 +94,7 @@ fragment float4 fragmentShader(
     // Object attributes
     float shininess = 10;
     if (inColor.r == 0) {
-        shininess  = 35;
+        shininess  = 20;
         float wave = saturate(sin(in.position.x / 5));
         in.color   = mix(in.color, float3(1, 1, 1), float3(wave));
     }
@@ -102,8 +104,8 @@ fragment float4 fragmentShader(
     //    }
 
     const float3 specularColor = 0.8 * inColor;
-    const float3 diffuseColor  = 0.7 * inColor;
-    const float3 ambientColor  = 0.2 * inColor;
+    const float3 diffuseColor  = 0.8 * inColor;
+    const float3 ambientColor  = 0.4 * inColor;
 
     float3 normal         = normalize(in.normal);  // Need to normalize interpolated normals
     float3 lightDirection = lightPosition - in.viewPosition;
@@ -132,7 +134,7 @@ fragment float4 fragmentShader(
         + specularColor * specular * lightColor * lightPower / lightDistance;
 
     // Add an atmospherics blend; it is absolutely empirical.
-    float hazeAmount       = saturate(pow(length(in.viewPosition), 1.5) / 1000);
+    float hazeAmount       = saturate(pow(length(in.viewPosition), 1.5) / 100);
     const float3 hazeColor = float3(1, 1, 1);
     const float3 blended   = mix(colorLinear, hazeColor, float3(hazeAmount));
 

@@ -36,6 +36,7 @@ static const size_t kAlignedUniformsSize = (sizeof(Uniforms) & ~0xFF) + 0x100;
     Terrain *_mesh;
 
     float _rotation;
+    
     float _time;
     long int _verticies_count;
     bool _falloff;
@@ -51,7 +52,7 @@ static const size_t kAlignedUniformsSize = (sizeof(Uniforms) & ~0xFF) + 0x100;
         _inFlightSemaphore = dispatch_semaphore_create(kMaxBuffersInFlight);
         [self _loadMetalWithView:view];
         [self _loadAssets];
-        simd_float4 cameraInitPosition = { -50, -2, -50, 0 };
+        simd_float4 cameraInitPosition = { 0, -2, 0, 0 };
         _camera                        = [[PCDRCamera alloc] initWithPosition:cameraInitPosition];
     }
 
@@ -109,7 +110,7 @@ static const size_t kAlignedUniformsSize = (sizeof(Uniforms) & ~0xFF) + 0x100;
 
     NSUInteger uniformBufferSize = kAlignedUniformsSize * kMaxBuffersInFlight;
     _dynamicUniformBuffer        = [_device newBufferWithLength:uniformBufferSize
-                                                 options:MTLResourceStorageModeShared];
+                                                        options:MTLResourceStorageModeShared];
 
     _dynamicUniformBuffer.label = @"UniformBuffer";
 
@@ -137,8 +138,8 @@ static const size_t kAlignedUniformsSize = (sizeof(Uniforms) & ~0xFF) + 0x100;
 
     if (_falloff) {
         _mesh = [[Terrain alloc] initFalloffWithDevice:_device
-                                                 width:250
-                                                length:250];
+                                                 width:500
+                                                length:500];
     } else {
         _mesh = [[Terrain alloc] initWithDevice:_device
                                           width:100
@@ -212,7 +213,7 @@ static const size_t kAlignedUniformsSize = (sizeof(Uniforms) & ~0xFF) + 0x100;
     uniforms->normalMatrix    = simd_transpose(normals);
 
     int evolve = _time * 100;
-    if (true) {
+    if (false) {
         [_mesh growMesh];
     }
 

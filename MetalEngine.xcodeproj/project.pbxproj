@@ -25,6 +25,7 @@
 		7344C877287EB4C3006F327E /* Terrain.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Terrain.h; sourceTree = "<group>"; };
 		7344C878287EB4C3006F327E /* Terrain.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = Terrain.m; sourceTree = "<group>"; };
 		7344C87A287F9E00006F327E /* ShaderTypes.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ShaderTypes.h; sourceTree = "<group>"; };
+		73AE0FF828991B950097B984 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		73B819B4288801E100A57A64 /* MetalEngine-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "MetalEngine-Bridging-Header.h"; sourceTree = "<group>"; };
 		73B819B5288801E100A57A64 /* Preferences.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Preferences.swift; sourceTree = "<group>"; };
 		99EA9FB4273E87680037155D /* MetalEngine.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MetalEngine.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -101,6 +102,7 @@
 		99EA9FB6273E87680037155D /* MetalEngine */ = {
 			isa = PBXGroup;
 			children = (
+				73AE0FF828991B950097B984 /* Info.plist */,
 				7344C876287EB482006F327E /* Components */,
 				99EA9FD2273F61370037155D /* Data */,
 				99EA9FD1273F61240037155D /* Application */,
@@ -369,6 +371,7 @@
 				DEVELOPMENT_TEAM = 5WFL77BLAA;
 				ENABLE_HARDENED_RUNTIME = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = MetalEngine/Info.plist;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				INFOPLIST_KEY_NSMainStoryboardFile = Main;
 				INFOPLIST_KEY_NSPrincipalClass = NSApplication;
@@ -401,6 +404,7 @@
 				DEVELOPMENT_TEAM = 5WFL77BLAA;
 				ENABLE_HARDENED_RUNTIME = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = MetalEngine/Info.plist;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				INFOPLIST_KEY_NSMainStoryboardFile = Main;
 				INFOPLIST_KEY_NSPrincipalClass = NSApplication;

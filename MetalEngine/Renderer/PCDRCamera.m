@@ -53,7 +53,7 @@
 {
     simd_float4x4 translation;
     float rotateSpeed    = 0.05;
-    float translateSpeed = 5 / 3;
+    float translateSpeed = 0.1;
 
     switch (event.keyCode) {
     case 125:

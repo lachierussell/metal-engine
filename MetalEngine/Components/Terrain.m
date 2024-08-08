@@ -7,6 +7,7 @@
 
 #import "Terrain.h"
 #import <float.h>
+#import <UniformTypeIdentifiers/UTType.h>
 
 @implementation Terrain : NSObject {
     simd_float3 *_vertices;
@@ -64,20 +65,50 @@
                                  length:(_width + 1) * (_length + 1) * 6 * sizeof(VERTEX)
                                 options:MTLResourceOptionCPUCacheModeDefault];
 
-    GKPerlinNoiseSource *perlinNoise = [[GKPerlinNoiseSource alloc] initWithFrequency:0.04
+    GKPerlinNoiseSource *perlinNoise = [[GKPerlinNoiseSource alloc] initWithFrequency:0.05
                                                                           octaveCount:4
                                                                           persistence:0.4
                                                                            lacunarity:2
                                                                                  seed:2];
-
-    _noiseMap = [[GKNoiseMap alloc] initWithNoise:_noise
-                                             size:simd_make_double2(_width, _length)
-                                           origin:simd_make_double2(0, 0)
-                                      sampleCount:simd_make_int2(_width, _length)
-                                         seamless:true];
-
+    
     assert(perlinNoise != NULL);
     _noise = [[GKNoise alloc] initWithNoiseSource:perlinNoise];
+    _noiseMap = [[GKNoiseMap alloc] initWithNoise:_noise
+                                             size:simd_make_double2(8, 8)
+                                           origin:simd_make_double2(0, 0)
+                                      sampleCount:simd_make_int2(_width, _length)
+                                         seamless:false];
+
+}
+
+- (void)saveNoiseMap
+{
+    
+    SKTexture *texture = [SKTexture textureWithNoiseMap:_noiseMap];
+    CGImageRef image = [texture CGImage];
+    NSURL *url = [NSURL URLWithString:@"file:///Users/lachlan/Downloads/test2.png"];
+
+    float compression = 1.0; // Lossless compression if available.
+    int orientation = 4; // Origin is at bottom, left.
+    CFStringRef myKeys[3];
+    CFTypeRef   myValues[3];
+    CFDictionaryRef myOptions = NULL;
+    myKeys[0] = kCGImagePropertyOrientation;
+    myValues[0] = CFNumberCreate(NULL, kCFNumberIntType, &orientation);
+    myKeys[1] = kCGImagePropertyHasAlpha;
+    myValues[1] = kCFBooleanTrue;
+    myKeys[2] = kCGImageDestinationLossyCompressionQuality;
+    myValues[2] = CFNumberCreate(NULL, kCFNumberFloatType, &compression);
+    myOptions = CFDictionaryCreate( NULL, (const void **)myKeys, (const void **)myValues, 3,
+                          &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
+    // Release the CFNumber and CFDictionary objects when you no longer need them.
+
+    
+    CGImageDestinationRef dest = CGImageDestinationCreateWithURL((CFURLRef)url, kUTTypePNG, 1, nil);
+    
+    CGImageDestinationAddImage(dest, image, myOptions);
+    printf(CGImageDestinationFinalize(dest) ? "True\n": "False\n");
+    CFRelease(dest);
 }
 
 - (void)createBlankMesh
@@ -151,12 +182,14 @@
 - (void)growMesh
 {
     [self createBlankMesh];
+    [_noise moveBy:(simd_double3){1, 0, 1}];
     _noiseMap = [GKNoiseMap noiseMapWithNoise:_noise
                                          size:simd_make_double2(_width + _iteration, _length + _iteration)
-                                       origin:simd_make_double2(_iteration, _iteration)
+                                       origin:(simd_double2){0, 0}
                                   sampleCount:simd_make_int2(_width, _length)
-                                     seamless:true];
+                                     seamless:false];
 
+    
     // Move verticies
     for (int i = 0, l = 0; l <= _length; l++) {
         for (int w = 0; w <= _width; w++, i++) {
@@ -173,6 +206,7 @@
 
     [self tesalate];
     [self updateBuffer];
+    [self saveNoiseMap];
 }
 
 - (simd_float3)calculateNormalAt:(int)vertex
